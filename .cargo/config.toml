@@ -1,0 +1,14 @@
+[alias]
+open-doc = [
+    "test",
+    # "--package",
+    # "tests",
+    "--test",
+    "doc",
+    "--all-features",
+    "--",
+    "build_and_open_rust_doc",
+    "--exact",
+    "--show-output",
+    "--ignored",
+]

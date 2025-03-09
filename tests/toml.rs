@@ -72,9 +72,8 @@ fn test_new_raw_map() -> AnyResult<()> {
   Ok(())
 }
 
-#[ignore]
 #[test]
-fn test_main() -> ResolverResult<()> {
+fn test_get_with_context() -> ResolverResult<()> {
   let resolver: TemplateResolver = raw_toml_to_hashmap()
     .expect("Failed to deserialize toml str to AHashRawMap")
     .try_into()?;
@@ -84,14 +83,14 @@ fn test_main() -> ResolverResult<()> {
     &[
       ("period", "evening"),
       ("name", "Alice"),
-      ("attr", "unknown"),
+      ("gender", "unknown"),
     ],
   )?;
   assert_eq!(text, "Good evening! Ms.Alice");
 
   let text = resolver.get_with_context(
     "greeting",
-    &[("period", "night"), ("name", "Tom"), ("attr", "male")],
+    &[("period", "night"), ("name", "Tom"), ("gender", "male")],
   )?;
   assert_eq!(text, "Good night! Mr.Tom");
 

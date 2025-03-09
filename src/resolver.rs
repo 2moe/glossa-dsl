@@ -2,7 +2,11 @@
 mod serialize;
 
 #[cfg(feature = "bincode")]
+#[cfg(feature = "std")]
 mod bin_code;
+
+#[cfg(feature = "bincode")]
+mod bin_code_nostd;
 
 //
 mod from_slice;

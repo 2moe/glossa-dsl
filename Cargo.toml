@@ -1,6 +1,6 @@
 [package]
 name = "tmpl-resolver"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
@@ -14,7 +14,13 @@ description = "A lightweight template resolution engine with conditional logic s
 
 [features]
 default = []
-std = ["serde?/std", "dep:ahash", "dep:kstring", "thiserror/std"]
+std = [
+    "serde?/std",
+    "dep:ahash",
+    "dep:kstring",
+    "thiserror/std",
+    "bincode?/std",
+]
 serde = [
     "dep:serde",
     "tinyvec/serde",
@@ -22,7 +28,7 @@ serde = [
     "kstring?/serde",
     "compact_str/serde",
 ]
-bincode = ["dep:bincode", "std", "serde"]
+bincode = ["dep:bincode", "serde"]
 all = ["std", "serde", "bincode"]
 
 [dependencies]

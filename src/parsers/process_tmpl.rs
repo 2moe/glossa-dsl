@@ -5,7 +5,7 @@ use tap::Pipe;
 use crate::{
   MiniStr,
   error::{ResolverError, ResolverResult},
-  parsers::get_slice_value,
+  parsers::context::Context,
   part::{TemplatePart, VariableRef},
   resolver::TemplateResolver,
   selector, template,
@@ -15,18 +15,18 @@ impl TemplateResolver {
   pub(crate) fn process_template(
     &self,
     template: &template::Template,
-    sorted_context: &[(&str, &str)],
+    context: &Context<'_>,
   ) -> ResolverResult<MiniStr> {
     use template::Template::*;
     match template {
-      Conditional(x) => self.process_tmpl_selector(sorted_context, x),
-      Parts(parts) => self.process_tmpl_parts(sorted_context, parts),
+      Conditional(x) => self.process_tmpl_selector(context, x),
+      Parts(parts) => self.process_tmpl_parts(context, parts),
     }
   }
 
   pub(crate) fn process_tmpl_parts(
     &self,
-    context: &[(&str, &str)],
+    context: &Context<'_>,
     parts: &[TemplatePart],
   ) -> Result<MiniStr, ResolverError> {
     parts.iter().try_fold(
@@ -48,7 +48,8 @@ impl TemplateResolver {
                   .to_owned()
                   .pipe(ResolverError::MissingParameter)
               };
-              get_slice_value(context, param)
+              context
+                .get_value(param)
                 .ok_or_else(err)?
                 .pipe(push_str)
             }
@@ -60,7 +61,7 @@ impl TemplateResolver {
 
   pub(crate) fn process_ref_var(
     &self,
-    context: &[(&str, &str)],
+    context: &Context<'_>,
     var_name: &MiniStr,
   ) -> Result<MiniStr, ResolverError> {
     let var_template = self
@@ -75,7 +76,7 @@ impl TemplateResolver {
 
   pub(crate) fn process_tmpl_selector(
     &self,
-    context: &[(&str, &str)],
+    context: &Context<'_>,
     selector: &selector::Selector,
   ) -> Result<MiniStr, ResolverError> {
     let new_err = |missing_param| {
@@ -89,7 +90,8 @@ impl TemplateResolver {
         })
     };
 
-    let param_value = get_slice_value(context, &selector.param) //
+    let param_value = context
+      .get_value(&selector.param)
       .ok_or_else(|| new_err(true))?;
 
     for (value, case_template) in &selector.cases {

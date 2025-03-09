@@ -1,4 +1,5 @@
 mod branch;
+pub(crate) mod context;
 mod process_tmpl;
 
 use alloc::{boxed::Box, vec::Vec};
@@ -75,12 +76,4 @@ fn parse_conditional(input: &str) -> IResult<&str, selector::Selector> {
     },
   )
     .pipe(Ok)
-}
-
-fn get_slice_value<'a>(context: &'a [(&str, &str)], key: &str) -> Option<&'a str> {
-  context
-    .binary_search_by_key(&&key, |(k, _)| k)
-    .ok()
-    .and_then(|idx| context.get(idx))
-    .map(|x| x.1)
 }

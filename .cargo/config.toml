@@ -1,4 +1,5 @@
 [alias]
+ta = ["test", "--all-features", "--all"]
 open-doc = [
     "test",
     # "--package",

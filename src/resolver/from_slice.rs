@@ -24,32 +24,34 @@ impl<const N: usize> TryFrom<[(&str, &str); N]> for TemplateResolver {
 }
 
 impl TemplateResolver {
-  /// Construct from sorted slice (no_std compatible)
+  /// Construct from slice (no_std compatible)
   ///
-  /// ## Optimization
+  /// ```
+  /// use tap::Pipe;
+  /// use tmpl_resolver::TemplateResolver;
   ///
-  /// - Avoids hashing overhead
-  /// - Binary search for efficient lookups
-  /// - Automatic sorting ensures search correctness
+  /// let _res = [
+  ///   ("g", "Good"),
+  ///   ("greeting", "{g} { time-period }! { $name }"),
+  ///   (
+  ///     "time-period",
+  ///     "$period ->
+  ///       [morning] Morning
+  ///       *[other] {$period}",
+  ///   ),
+  /// ]
+  /// .pipe_as_ref(TemplateResolver::from_raw_slice);
+  /// ```
   pub fn from_raw_slice(raw: &[(&str, &str)]) -> ResolverResult<Self> {
-    match raw
+    raw
       .iter()
       .map(|(key, value)| {
         parse_value_or_map_err(key, value) //
           .map(|tmpl| (convert_map_key(key), tmpl))
       })
       .collect::<Result<TemplateAST, _>>()?
-    {
-      #[cfg(feature = "std")]
-      ast => ast,
-      #[cfg(not(feature = "std"))]
-      mut ast => {
-        ast.sort_unstable_by(|(ka, _), (kb, _)| ka.cmp(kb));
-        ast
-      }
-    }
-    .pipe(Self)
-    .pipe(Ok)
+      .pipe(Self)
+      .pipe(Ok)
   }
 }
 
@@ -61,4 +63,29 @@ fn convert_map_key(key: &str) -> crate::MiniStr {
 #[cfg(feature = "std")]
 fn convert_map_key(key: &str) -> kstring::KString {
   key.pipe(kstring::KString::from_ref)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[ignore]
+  #[test]
+  fn test_from_raw_slice() -> ResolverResult<()> {
+    let _res = [
+      ("g", "Good"),
+      ("greeting", "{g} { time-period }! { $name }"),
+      (
+        "time-period",
+        "$period ->
+          [morning] Morning
+          *[other] {$period}",
+      ),
+    ]
+    .pipe_as_ref(TemplateResolver::from_raw_slice)?;
+
+    // extern crate std;
+    // std::dbg!(res);
+    Ok(())
+  }
 }

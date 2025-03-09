@@ -1,6 +1,3 @@
-#[cfg(feature = "serde")]
-mod serialize;
-
 #[cfg(feature = "bincode")]
 #[cfg(feature = "std")]
 mod bin_code;
@@ -33,7 +30,7 @@ pub type AHashRawMap = ahash::HashMap<KString, MiniStr>;
 pub type TemplateAST = ahash::HashMap<KString, Template>;
 
 #[cfg(not(feature = "std"))]
-pub type TemplateAST = alloc::vec::Vec<(MiniStr, Template)>;
+pub type TemplateAST = alloc::collections::BTreeMap<MiniStr, Template>;
 
 /// Main template resolution engine
 ///
@@ -42,10 +39,9 @@ pub type TemplateAST = alloc::vec::Vec<(MiniStr, Template)>;
 /// - `cfg(feature = "std")`
 ///   - Uses HashMap with std for O(1) lookups
 /// - no_std:
-///   - Falls back to sorted Vec in no_std (O(log n) lookups)
-///   - Automatic sorting in no_std maintains lookup efficiency
+///   - Falls back to BTreeMap in no_std (O(log n) lookups)
 #[derive(Debug, Default, Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TemplateResolver(TemplateAST);
 
 impl core::ops::Deref for TemplateResolver {

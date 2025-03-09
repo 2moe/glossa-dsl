@@ -72,12 +72,17 @@ fn main() -> ResolverResult<()> {
 extern crate alloc;
 
 pub mod error;
+pub use error::ResolverResult;
+
 mod parsers;
 pub(crate) mod part;
 
 pub mod resolver;
 pub(crate) use resolver::MiniStr;
 pub use resolver::TemplateResolver;
+
+#[cfg(feature = "std")]
+pub type ContextMap<'a> = ahash::HashMap<&'a str, &'a str>;
 
 pub(crate) mod selector;
 pub(crate) mod template;

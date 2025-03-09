@@ -66,13 +66,13 @@ time-period = """
     *[other] {g} {$period}
 """
 
-gender = """
+salutation = """
 
-$attr ->
+$gender ->
   [male] Mr.
   *[female] Ms.
 """
-greeting = "{ time-period }! { gender }{ $name }"
+greeting = "{ time-period }! { salutation }{ $name }"
   "##;
 
   toml::from_str(text)
@@ -88,7 +88,7 @@ fn main() -> ResolverResult<()> {
     &[
       ("period", "evening"),
       ("name", "Alice"),
-      ("attr", "unknown"),
+      ("gender", "unknown"),
     ],
   )?;
   assert_eq!(text, "Good evening! Ms.Alice");
@@ -98,7 +98,7 @@ fn main() -> ResolverResult<()> {
     &[
       ("period", "night"),
       ("name", "Tom"),
-      ("attr", "male"),
+      ("gender", "male"),
     ],
   )?;
   assert_eq!(text, "Good night! Mr.Tom");

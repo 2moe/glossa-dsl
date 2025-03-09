@@ -14,13 +14,13 @@ $period ->
 *[other] {g} {$period}
 """
 
-gender = """
+salutation = """
 
-$attr ->
+$gender ->
 [male] Mr.
 *[female] Ms.
 """
-greeting = "{ time-period }! { gender }{ $name }"
+greeting = "{ time-period }! { salutation }{ $name }"
   "##;
 
   toml::from_str(text)
@@ -37,10 +37,10 @@ fn test_new_raw_map() -> AnyResult<()> {
 
   let map = [
     (
-      "greeting", "{ time-period }! { gender }{ $name }",
+      "greeting", "{ time-period }! { salutation }{ $name }",
     ),
     (
-      "gender", "\n$attr ->\n[male] Mr.\n*[female] Ms.\n",
+      "salutation", "\n$gender ->\n[male] Mr.\n*[female] Ms.\n",
     ),
     (
       "time-period", "$period ->\n[morning] {g} Morning\n[evening] {g} evening\n*[other] {g} {$period}\n",
@@ -65,7 +65,7 @@ fn test_new_raw_map() -> AnyResult<()> {
     &[
       ("period", "evening"),
       ("name", "Alice"),
-      ("attr", "unknown"),
+      ("gender", "unknown"),
     ],
   )?;
   assert_eq!(text, "Good evening! Ms.Alice");

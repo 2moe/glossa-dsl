@@ -24,9 +24,9 @@ impl TemplateResolver {
   ///
   ///   let map = [
   ///     (
-  ///       "gender",
+  ///       "salutation",
   ///       "
-  ///       $attr ->
+  ///       $gender ->
   ///         [male] Mr.
   ///         *[female] Ms.",
   ///     ),
@@ -39,7 +39,7 @@ impl TemplateResolver {
   ///         *[other] {g} {$period}
   ///       ",
   ///     ),
-  ///     ("greeting", "{ time-period }! { gender }{ $name }"),
+  ///     ("greeting", "{ time-period }! { salutation }{ $name }"),
   ///   ]
   ///   .into_iter()
   ///   .map(|(k, v)| (k.into(), v.into()))
@@ -53,7 +53,7 @@ impl TemplateResolver {
   ///     &[
   ///       ("period", "evening"),
   ///       ("name", "Alice"),
-  ///       ("attr", "unknown"),
+  ///       ("gender", "unknown"),
   ///     ],
   ///   ).expect("Failed to get text");
   ///   assert_eq!(text, "Good evening! Ms.Alice");

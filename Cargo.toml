@@ -14,8 +14,6 @@ description = "A lightweight template resolution engine with conditional logic s
 
 [features]
 default = []
-# default = ["all"]
-all = ["serde", "std"]
 std = ["serde?/std", "dep:ahash", "dep:kstring", "thiserror/std"]
 serde = [
     "dep:serde",
@@ -25,7 +23,7 @@ serde = [
     "compact_str/serde",
 ]
 bincode = ["dep:bincode", "std", "serde"]
-# kstring = []
+all = ["std", "serde", "bincode"]
 
 [dependencies]
 tap = "1.0"

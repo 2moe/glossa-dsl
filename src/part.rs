@@ -6,7 +6,7 @@ use crate::MiniStr;
 ///
 /// - Text variant stores content directly in MiniStr
 /// - Variable uses efficient enum discriminants
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum TemplatePart {
   Text(MiniStr),
@@ -20,7 +20,7 @@ impl Default for TemplatePart {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum VariableRef {
   Variable(MiniStr),

@@ -9,7 +9,7 @@ use tap::Pipe;
 
 use crate::{MiniStr, parsers, template};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct Branch {
   pub(crate) is_default: bool,
   pub(crate) value: MiniStr,

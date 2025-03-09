@@ -40,7 +40,7 @@ pub type TemplateAST = alloc::vec::Vec<(MiniStr, Template)>;
 /// - no_std:
 ///   - Falls back to sorted Vec in no_std (O(log n) lookups)
 ///   - Automatic sorting in no_std maintains lookup efficiency
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize))]
 pub struct TemplateResolver(TemplateAST);
 

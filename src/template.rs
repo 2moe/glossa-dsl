@@ -110,10 +110,14 @@ fn parse_delimited_braces(input: &str) -> IResult<&str, &str> {
     .collect::<MiniStr>();
 
   // Extract content until closing pattern
-  let (input, content) = take_until(closing_pattern.as_str()).parse(input)?;
+  let (input, content) = closing_pattern
+    .pipe_deref(take_until)
+    .parse(input)?;
 
   // Verify and consume closing braces
-  let (input, _) = tag(closing_pattern.as_str()).parse(input)?;
+  let (input, _) = closing_pattern
+    .pipe_deref(tag)
+    .parse(input)?;
 
   Ok((input, content.trim_ascii()))
 }

@@ -42,9 +42,6 @@ fn parse_conditional(input: &str) -> IResult<&str, selector::Selector> {
     take_while1(|c: char| c.is_alphanumeric() || c == '-' || c == '_')
       .parse(input)?;
 
-  // let (input, _) = multispace0(input)?;
-  // let (input, _) = tag("->").parse(input)?;
-  // let (input, _) = multispace0(input)?;
   let (input, _t) = (multispace0, tag("->"), multispace0).parse(input)?;
 
   let (input, branches) = many0(branch::parse_branch).parse(input)?;

@@ -68,6 +68,35 @@ fn main() -> ResolverResult<()> {
   Ok(())
 }
 ```
+
+### Escape
+
+- `"{{ a   }}"` => `"a"`
+- `"{{{a}}}"` => `"a"`
+- `"{{{{  a  }}}}"` => `"a"`
+- `"{{    {a}    }}"` => `"{a}"`
+- `"{{a}"` => ❌ nom Error, code: take_until
+- `"{{{    {{a}}    }}}"` => `"{{a}}"`
+- `"{{{    {{ a }}    }}}"` => `"{{ a }}"`
+- `"{{{ {{a} }}}"` => `"{{a}"`
+
+```rust
+use tmpl_resolver::{ResolverResult, TemplateResolver};
+
+fn main() -> ResolverResult<()> {
+  let resolver: TemplateResolver = [
+    ("h", "Hello { $name }"),
+    ("greeting", "{h}!{{ how_are_you }}? {{{    {{$name}}  }}}"),
+  ]
+  .try_into()?;
+
+  let ctx = [("name", "Alice"), ("how_are_you", "How are you")];
+
+  let result = resolver.get_with_context("greeting", &ctx)?;
+  assert_eq!(result, "Hello Alice!how_are_you? {{$name}}");
+  Ok(())
+}
+```
 */
 extern crate alloc;
 

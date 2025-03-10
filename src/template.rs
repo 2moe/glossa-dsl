@@ -1,13 +1,14 @@
 use compact_str::ToCompactString;
 use nom::{
   IResult, Parser,
-  bytes::complete::{tag, take_till, take_until},
+  bytes::complete::{tag, take_till, take_until, take_while},
   sequence::delimited,
 };
 use tap::Pipe;
 use tinyvec::TinyVec;
 
 use crate::{
+  MiniStr,
   error::{ResolverError, ResolverResult},
   part::{TemplatePart, VariableRef},
   selector,
@@ -59,7 +60,7 @@ pub(crate) fn parse_template(input: &str) -> ResolverResult<TinyTemplateParts> {
           match text.is_empty() {
             true => None,
             _ => text
-              .to_compact_string()
+              .pipe(MiniStr::from)
               .pipe(TemplatePart::Text)
               .into(),
           }
@@ -75,9 +76,13 @@ pub(crate) fn parse_template(input: &str) -> ResolverResult<TinyTemplateParts> {
 }
 
 fn parse_variable(input: &str) -> IResult<&str, VariableRef> {
-  // let (input, _) = tag("{").parse(input)?;
-  // let (input, content) = take_until("}").parse(input)?;
-  // let (input, _) = tag("}").parse(input)?;
+  // => escaped text, not variable
+  if input.starts_with("{{") {
+    return nom::error::Error::new(input, nom::error::ErrorKind::Verify)
+      .pipe(nom::Err::Error)
+      .pipe(Err);
+  }
+
   let (input, content) =
     delimited(tag("{"), take_until("}"), tag("}")).parse(input)?;
   let content = content.trim();
@@ -89,6 +94,39 @@ fn parse_variable(input: &str) -> IResult<&str, VariableRef> {
   .pipe(Ok)
 }
 
+fn parse_delimited_braces(input: &str) -> IResult<&str, &str> {
+  // Count opening braces
+  let (input, braces) = take_while(|c| c == '{').parse(input)?;
+  let n = braces.len();
+
+  // "{{" => n=2
+  // "{{{" => n=3
+  // if n=2 => "}}"
+  //    n=3 => "}}}"
+  let closing_pattern = '}'
+    .pipe(core::iter::once)
+    .cycle()
+    .take(n)
+    .collect::<MiniStr>();
+
+  // Extract content until closing pattern
+  let (input, content) = take_until(closing_pattern.as_str()).parse(input)?;
+
+  // Verify and consume closing braces
+  let (input, _) = tag(closing_pattern.as_str()).parse(input)?;
+
+  Ok((input, content.trim_ascii()))
+}
+
 fn parse_text(input: &str) -> IResult<&str, &str> {
-  take_till(|c| c == '{').parse(input)
+  let (input, content) = take_till(|c| c == '{').parse(input)?;
+
+  match [input.starts_with("{{"), content.is_empty()]
+    .iter()
+    .any(|b| !b)
+  {
+    // input.not_starts_with("{{") or content.is_not_empty()
+    true => Ok((input, content)),
+    _ => parse_delimited_braces(input),
+  }
 }

@@ -221,7 +221,7 @@ hello = "Hello {$🐱}"
 rust:
 
 ```rust
-let text = res.get_with_context("hello", &["🐱", "QwQ"])?;
+let text = res.get_with_context("hello", &[("🐱", "QwQ")])?;
 assert_eq!(text, "Hello QwQ");
 ```
 

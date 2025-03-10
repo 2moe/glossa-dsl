@@ -4,7 +4,7 @@ A lightweight template resolution engine with conditional logic support.
 
 Its syntax is similar to Mozilla Fluent, but it doesn't have as many features as Fluent.
 
-The parser is implemented using `nom` and can be used in `no_std`.
+The core logic is implemented using `nom` and can be used in `no_std`.
 
 [![tmpl-resolver.crate](https://img.shields.io/crates/v/tmpl-resolver)](https://crates.io/crates/tmpl-resolver)
 [![Documentation](https://docs.rs/tmpl-resolver/badge.svg)](https://docs.rs/tmpl-resolver)

@@ -4,13 +4,14 @@ use tmpl_resolver::{ResolverResult, TemplateResolver};
 fn test_tmpl_escaped() -> ResolverResult<()> {
   let resolver: TemplateResolver = [
     ("h", "Hello { $name }"),
-    ("greeting", "{h}!{{ how_are_you }}? {{ {$name} }}"),
+    ("how_are_you", "How Are You"),
+    ("greeting", "{h}!{{ how_are_you }}? {{    {$name} }}"),
   ]
   .try_into()?;
 
-  dbg!(&resolver);
+  // dbg!(&resolver);
 
-  let ctx = [("name", "Alice"), ("how_are_you", "How are you")];
+  let ctx = [("name", "Alice")];
 
   let result = resolver.get_with_context("greeting", &ctx)?;
   assert_eq!(result, "Hello Alice!how_are_you? {$name}");

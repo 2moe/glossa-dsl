@@ -1,4 +1,4 @@
-use tap::Tap;
+use tap::{Pipe, Tap};
 use tinyvec::TinyVec;
 
 // use super::{ResolverResult, TemplateResolver};
@@ -50,17 +50,19 @@ impl TemplateResolver {
     var_name: &str,
     context: &[(&str, &str)],
   ) -> ResolverResult<MiniStr> {
-    let template = self
-      .get_value_by_key(var_name)
-      .ok_or_else(|| ResolverError::UndefinedVariable(var_name.into()))?;
+    let process = |ctx| self.try_get_template_and_process(var_name, ctx);
 
-    let sorted_context = context
-      .iter()
-      .copied()
-      .collect::<TinyVec<[(&str, &str); 5]>>()
-      .tap_mut(|x| x.sort_unstable_by_key(|&(k, _)| k));
-
-    self.process_template(template, &Context::Slice(&sorted_context))
+    match context.is_empty() {
+      true => return process(&Context::Empty),
+      _ => context
+        .iter()
+        .copied()
+        .collect::<TinyVec<[(&str, &str); 5]>>()
+        .tap_mut(|x| x.sort_unstable_by_key(|&(k, _)| k)),
+    }
+    .as_ref()
+    .pipe(Context::Slice)
+    .pipe_ref(process)
   }
 
   #[cfg(feature = "std")]
@@ -98,31 +100,21 @@ impl TemplateResolver {
     var_name: &str,
     context_map: &crate::ContextMap,
   ) -> ResolverResult<MiniStr> {
-    let template = self
-      .get_value_by_key(var_name)
-      .ok_or_else(|| ResolverError::UndefinedVariable(var_name.into()))?;
+    let process = |ctx| self.try_get_template_and_process(var_name, ctx);
 
-    self.process_template(template, &Context::Map(context_map))
+    match context_map.is_empty() {
+      true => return process(&Context::Empty),
+      _ => context_map.pipe(Context::Map),
+    }
+    .pipe_ref(process)
   }
 
-  pub(crate) fn get_value_by_key(&self, key: &str) -> Option<&Template> {
-    self.0.get(key)
+  pub(crate) fn try_get_template(&self, key: &str) -> ResolverResult<&Template> {
+    self
+      .0
+      .get(key)
+      .ok_or_else(|| ResolverError::UndefinedVariable(key.into()))
   }
-
-  // old: Previously, for no_std, Vec<MiniStr, Template> was used as the structure
-  // for the AST. Since version 0.0.3, BTreeMap is used, so the following
-  // function is deprecated.
-  //
-  // #[cfg(not(feature = "std"))]
-  // pub(crate) fn get_value_by_key(&self, key: &str) -> Option<&Template> {
-  //   let vec = &self.0;
-  //
-  //   vec
-  //     .binary_search_by_key(&key, |(k, _)| k)
-  //     .ok()
-  //     .and_then(|idx| vec.get(idx))
-  //     .map(|x| &x.1)
-  // }
 }
 
 #[cfg(test)]

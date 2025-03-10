@@ -40,7 +40,7 @@ impl TemplateResolver {
           TemplatePart::Text(text) => push_str(text),
           TemplatePart::Variable(var) => match var {
             VariableRef::Variable(var_name) => self
-              .process_ref_var(context, var_name)?
+              .try_get_template_and_process(var_name, context)?
               .pipe_deref(push_str),
             VariableRef::Parameter(param) => {
               let err = || {
@@ -59,18 +59,13 @@ impl TemplateResolver {
     )
   }
 
-  pub(crate) fn process_ref_var(
+  /// old_name: process_ref_var
+  pub(crate) fn try_get_template_and_process(
     &self,
+    var_name: &str,
     context: &Context<'_>,
-    var_name: &MiniStr,
   ) -> Result<MiniStr, ResolverError> {
-    let var_template = self
-      .get_value_by_key(var_name)
-      .ok_or_else(|| {
-        var_name
-          .to_owned()
-          .pipe(ResolverError::UndefinedVariable)
-      })?;
+    let var_template = self.try_get_template(var_name)?;
     self.process_template(var_template, context)
   }
 

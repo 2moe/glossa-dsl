@@ -1,5 +1,7 @@
+#[derive(Debug, Clone)]
 pub(crate) enum Context<'a> {
   Slice(&'a [(&'a str, &'a str)]),
+  Empty,
   #[cfg(feature = "std")]
   Map(&'a crate::ContextMap<'a>),
 }
@@ -7,9 +9,10 @@ pub(crate) enum Context<'a> {
 impl<'a> Context<'a> {
   pub(crate) fn get_value(&self, key: &str) -> Option<&str> {
     match self {
-      Context::Slice(context) => Self::get_slice_value(context, key),
+      Self::Slice(context) => Self::get_slice_value(context, key),
+      Self::Empty => None,
       #[cfg(feature = "std")]
-      Context::Map(context) => context.get(key).copied(),
+      Self::Map(context) => context.get(key).copied(),
     }
   }
 

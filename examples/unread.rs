@@ -50,13 +50,13 @@ const EN_TOML: &str = r#"
       *[other] {$num}
   """
 
-  unread = "unread message"
+  unread_msg = "unread message"
 
   unread-count = """
     $num ->
-      [0] No {unread}s.
-      [1] You have { num-to-en } {unread}.
-      *[other] You have { num-to-en } {unread}s.
+      [0] No {unread_msg}s.
+      [1] You have { num-to-en } {unread_msg}.
+      *[other] You have { num-to-en } {unread_msg}s.
   """
 
   show-unread-messages-count = "{unread-count}"

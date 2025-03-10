@@ -17,8 +17,9 @@ fn test_emoji_var() -> ResolverResult<()> {
 
       "称谓" = """
       $gender ->
-        *[male] 先生
+        [male] 先生
         [female] 女士
+        *[test] { $🧑‍🏫 }
       """
 
       greeting = "{ 问候 }！{ $name }{ 称谓 }。"
@@ -30,6 +31,7 @@ fn test_emoji_var() -> ResolverResult<()> {
   let get_text = |ctx| res.get_with_context("greeting", ctx);
 
   let text = [
+    ("🧑‍🏫", "🧑🧑‍🏫"),
     ("period", "morning"),
     ("name", "Young"),
     ("gender", "unknown"),
@@ -37,7 +39,7 @@ fn test_emoji_var() -> ResolverResult<()> {
   .as_ref()
   .pipe(get_text)?;
 
-  assert_eq!(text, "早安喵 ฅ(°ω°ฅ)！Young先生。");
+  assert_eq!(text, "早安喵 ฅ(°ω°ฅ)！Young🧑🧑‍🏫。");
   assert_eq!(res.get_with_context("🐱", &[])?, "喵 ฅ(°ω°ฅ)");
 
   // dbg!(&text);

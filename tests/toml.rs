@@ -1,11 +1,12 @@
 #![cfg(feature = "std")]
 use anyhow::Result as AnyResult;
+use tap::{Pipe, Tap};
 use tmpl_resolver::{
   TemplateResolver, error::ResolverResult, resolver::AHashRawMap,
 };
 
 fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
-  let text = r##"
+  r##"
 g = "Good"
 time-period = """
 $period ->
@@ -21,9 +22,8 @@ $gender ->
 *[female] Ms.
 """
 greeting = "{ time-period }! { salutation }{ $name }"
-  "##;
-
-  toml::from_str(text)
+  "##
+    .pipe(toml::from_str)
 }
 
 #[ignore]
@@ -78,21 +78,25 @@ fn test_get_with_context() -> ResolverResult<()> {
     .expect("Failed to deserialize toml str to AHashRawMap")
     .try_into()?;
 
-  let text = resolver.get_with_context(
-    "greeting",
-    &[
-      ("period", "evening"),
-      ("name", "Alice"),
-      ("gender", "unknown"),
-    ],
-  )?;
-  assert_eq!(text, "Good evening! Ms.Alice");
+  let get_text = |ctx| resolver.get_with_context("greeting", ctx);
 
-  let text = resolver.get_with_context(
-    "greeting",
-    &[("period", "night"), ("name", "Tom"), ("gender", "male")],
-  )?;
-  assert_eq!(text, "Good night! Mr.Tom");
+  [
+    ("period", "evening"),
+    ("name", "Alice"),
+    ("gender", "unknown"),
+  ]
+  .as_ref()
+  .pipe(get_text)?
+  .tap(|text| assert_eq!(text, "Good evening! Ms.Alice"));
+
+  [
+    ("period", "night"), //
+    ("name", "Tom"),
+    ("gender", "male"),
+  ]
+  .as_ref()
+  .pipe(get_text)?
+  .tap(|text| assert_eq!(text, "Good night! Mr.Tom"));
 
   let g = resolver.get_with_context("g", &[])?;
   assert_eq!(g, "Good");

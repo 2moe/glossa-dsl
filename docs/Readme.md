@@ -186,7 +186,7 @@ fn main() -> ResolverResult<()> {
 
 ### Unicode
 
-We can use emoji as variable name.
+We can use emoji as ~~variable~~ identifier name.
 
 ---
 
@@ -216,7 +216,7 @@ toml:
 hello = "Hello {$🐱}"
 ```
 
-> `$🐱` means that this variable is passed in externally.
+> `$🐱` means that its value is passed in externally.
 
 rust:
 

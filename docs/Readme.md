@@ -43,9 +43,7 @@ The parser is implemented using `nom` and can be used in `no_std`.
 - ["bincode"]
   - Efficient binary serialization
 
-## Examples
-
-### Basic
+## Basic
 
 ```rust
 use tmpl_resolver::{TemplateResolver, error::ResolverResult};
@@ -65,7 +63,7 @@ fn main() -> ResolverResult<()> {
 }
 ```
 
-### Conditional Logic
+## Conditional Logic
 
 ```rust
 use tmpl_resolver::{TemplateResolver, error::ResolverResult};
@@ -120,71 +118,16 @@ fn main() -> ResolverResult<()> {
 }
 ```
 
-### toml
+## Real World Examples
+
+Add dependencies
 
 ```sh
-cargo add toml tap
+cargo add toml tap anyhow
 cargo add tmpl-resolver --features=std,serde
 ```
 
-```rust
-use tmpl_resolver::{TemplateResolver, resolver::AHashRawMap, ResolverResult};
-use tap::{Pipe, Tap};
-
-fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
-  r##"
-g = "Good"
-time-greeting = """
-  $period ->
-    [morning] {g} Morning
-    [evening] {g} evening
-    *[other] {g} {$period}
-"""
-
-salutation = """
-
-$gender ->
-  [male] Mr.
-  *[female] Ms.
-"""
-greeting = "{time-greeting}! { salutation }{ $name }"
-  "##
-    .pipe(toml::from_str)
-}
-
-fn main() -> ResolverResult<()> {
-  let resolver: TemplateResolver = raw_toml_to_hashmap()
-    .expect("Failed to deserialize toml str to AHashRawMap")
-    .try_into()?;
-
-  let get_text = |ctx| resolver.get_with_context("greeting", ctx);
-
-  [
-    ("period", "evening"),
-    ("name", "Alice"),
-    ("gender", "unknown"),
-  ]
-  .as_ref()
-  .pipe(get_text)?
-  .tap(|text| assert_eq!(text, "Good evening! Ms.Alice"));
-
-  [
-    ("period", "night"), //
-    ("name", "Tom"),
-    ("gender", "male"),
-  ]
-  .as_ref()
-  .pipe(get_text)?
-  .tap(|text| assert_eq!(text, "Good night! Mr.Tom"));
-
-  let g = resolver.get_with_context("g", &[])?;
-  assert_eq!(g, "Good");
-
-  Ok(())
-}
-```
-
-### Unicode
+### Emoji
 
 We can use emoji as ~~variable~~ identifier name.
 
@@ -266,6 +209,89 @@ fn main() -> ResolverResult<()> {
 
   assert_eq!(text, "早安喵 ฅ(°ω°ฅ)！Young先生。");
   assert_eq!(res.get_with_context("🐱", &[])?, "喵 ฅ(°ω°ฅ)");
+
+  Ok(())
+}
+```
+
+### Simple L10n Message
+
+```rust
+use anyhow::Result as AnyResult;
+use tap::{Pipe, TryConv};
+use tmpl_resolver::{TemplateResolver, resolver::AHashRawMap};
+
+const EN_TOML: &str = r#"
+  num-to-en = """
+    $num ->
+      [0] zero
+      [1] one
+      [2] two
+      [3] three
+      *[other] {$num}
+  """
+
+  unread = "unread message"
+
+  unread-count = """
+    $num ->
+      [0] No {unread}s.
+      [1] You have { num-to-en } {unread}.
+      *[other] You have { num-to-en } {unread}s.
+  """
+
+  show-unread-messages-count = "{unread-count}"
+"#;
+
+const ZH_TOML: &str = r#"
+  "阿拉伯数字转汉字" = """
+    $num ->
+      [0] 〇
+      [1] 一
+      [2] 二
+      [3] 三
+      *[其他] {$num}
+  """
+
+  "未读msg" = "未读消息"
+
+  "显示未读消息数量" = """
+    $num ->
+        [0] 没有{ 未读msg }。
+        [2] 您有两条{ 未读msg }。
+       *[其他] 您有{ 阿拉伯数字转汉字 }条{ 未读msg }。
+  """
+
+  show-unread-messages-count = "{显示未读消息数量}"
+"#;
+
+fn main() -> AnyResult<()> {
+  let get_text = |lang| -> AnyResult<_> {
+    match lang {
+      "zh" => ZH_TOML,
+      _ => EN_TOML,
+    }
+    .pipe(toml::from_str::<AHashRawMap>)?
+    .try_conv::<TemplateResolver>()?
+    .pipe(|r| {
+      move |num_str| {
+        r.get_with_context("show-unread-messages-count", &[("num", num_str)])
+      }
+    })
+    .pipe(Ok)
+  };
+
+  let get_en_text = get_text("en")?;
+  assert_eq!(get_en_text("0")?, "No unread messages.");
+  assert_eq!(get_en_text("1")?, "You have one unread message.");
+  assert_eq!(get_en_text("2")?, "You have two unread messages.");
+  assert_eq!(get_en_text("100")?, "You have 100 unread messages.");
+
+  let get_zh_text = get_text("zh")?;
+  assert_eq!(get_zh_text("0")?, "没有未读消息。");
+  assert_eq!(get_zh_text("1")?, "您有一条未读消息。");
+  assert_eq!(get_zh_text("2")?, "您有两条未读消息。");
+  assert_eq!(get_zh_text("100")?, "您有100条未读消息。");
 
   Ok(())
 }

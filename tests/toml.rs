@@ -7,21 +7,21 @@ use tmpl_resolver::{
 
 fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
   r##"
-g = "Good"
-time-period = """
-$period ->
-[morning] {g} Morning
-[evening] {g} evening
-*[other] {g} {$period}
-"""
+    g = "Good"
+    time-period = """
+    $period ->
+    [morning] {g} Morning
+    [evening] {g} evening
+    *[other] {g} {$period}
+    """
 
-salutation = """
+    salutation = """
 
-$gender ->
-[male] Mr.
-*[female] Ms.
-"""
-greeting = "{ time-period }! { salutation }{ $name }"
+    $gender ->
+    [male] Mr.
+    *[female] Ms.
+    """
+    greeting = "{ time-period }! { salutation }{ $name }"
   "##
     .pipe(toml::from_str)
 }
@@ -29,12 +29,6 @@ greeting = "{ time-period }! { salutation }{ $name }"
 #[ignore]
 #[test]
 fn test_new_raw_map() -> AnyResult<()> {
-  // dbg!(
-  //   raw_toml_to_hashmap()?
-  //     .into_iter()
-  //     .collect::<Vec<_>>()
-  // );
-
   let map = [
     (
       "greeting", "{ time-period }! { salutation }{ $name }",

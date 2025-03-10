@@ -188,12 +188,42 @@ fn main() -> ResolverResult<()> {
 
 We can use emoji as variable name.
 
+---
+
+toml:
+
 ```toml
 "🐱" = "ฅ(°ω°ฅ)"
 hello = "Hello {🐱}"
 ```
 
-For example, when `hello` references `{🐱}`, after expanding `hello`, we would get `"Hello ฅ(°ω°ฅ)"`.
+1. `hello` references `{🐱}`
+2. expanding `hello`
+3. we would get `"Hello ฅ(°ω°ฅ)"`.
+
+rust:
+
+```rust
+let text = res.get_with_context("hello", &[])?;
+assert_eq!(text, "Hello ฅ(°ω°ฅ)");
+```
+
+---
+
+toml:
+
+```toml
+hello = "Hello {$🐱}"
+```
+
+> `$🐱` means that this variable is passed in externally.
+
+rust:
+
+```rust
+let text = res.get_with_context("hello", &["🐱", "QwQ"])?;
+assert_eq!(text, "Hello QwQ");
+```
 
 ---
 

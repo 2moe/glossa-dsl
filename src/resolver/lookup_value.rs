@@ -25,21 +25,15 @@ impl TemplateResolver {
   /// use tmpl_resolver::TemplateResolver;
   ///
   /// let res: TemplateResolver = [
-  ///   ("g", "Good"),
-  ///   ("greeting", "{g} { time-period }! { $name }"),
-  ///   (
-  ///     "time-period",
-  ///     "$period ->
-  ///       [morning] Morning
-  ///       *[other] {$period}",
-  ///   ),
+  ///   ("h", "Hello"),
+  ///   ("greeting", "{h} {$🐱}"),
   /// ]
   /// .try_into()?;
   ///
-  /// let ctx = [("name", "Tom"), ("period", "night")];
+  /// let ctx = [("🐱", "喵 ฅ(°ω°ฅ)")];
   ///
   /// let text = res.get_with_context("greeting", &ctx)?;
-  /// assert_eq!(text, "Good night! Tom");
+  /// assert_eq!(text, "Hello 喵 ฅ(°ω°ฅ)");
   ///
   /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
   /// ```
@@ -118,10 +112,10 @@ impl TemplateResolver {
 }
 
 #[cfg(test)]
+#[cfg(feature = "std")]
 mod tests {
   use super::*;
 
-  #[cfg(feature = "std")]
   #[ignore]
   #[test]
   fn test_get_with_ctx_map() -> ResolverResult<()> {

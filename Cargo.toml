@@ -1,6 +1,6 @@
 [package]
 name = "tmpl-resolver"
-version = "0.0.7"
+version = "0.0.8"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
@@ -64,3 +64,11 @@ anyhow = "1.0"
 serde_json = "1.0"
 testutils = "0.0.1"
 toml = "0.8"
+
+[[example]]
+name = "unread"
+required-features = ["std", "serde"]
+
+[[example]]
+name = "toml"
+required-features = ["std", "serde"]

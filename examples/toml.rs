@@ -1,7 +1,6 @@
 //! ```ignore,sh
 //! cargo run --package tmpl-resolver --example toml --all-features
 //! ```
-#![cfg(all(feature = "std", feature = "serde"))]
 use tap::{Pipe, Tap};
 use tmpl_resolver::{ResolverResult, TemplateResolver, resolver::AHashRawMap};
 

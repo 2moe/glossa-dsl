@@ -19,7 +19,7 @@ impl<const N: usize> TryFrom<[(&str, &str); N]> for TemplateResolver {
   type Error = ResolverError;
 
   fn try_from(value: [(&str, &str); N]) -> Result<Self, Self::Error> {
-    Self::from_raw_slice(&value)
+    Self::try_from_raw_entries_iter(value.into_iter())
   }
 }
 
@@ -30,24 +30,55 @@ impl TemplateResolver {
   /// use tap::Pipe;
   /// use tmpl_resolver::TemplateResolver;
   ///
-  /// let _res = [
-  ///   ("g", "Good"),
-  ///   ("greeting", "{g} { time-period }! { $name }"),
-  ///   (
-  ///     "time-period",
-  ///     "$period ->
-  ///       [morning] Morning
-  ///       *[other] {$period}",
-  ///   ),
+  /// let res = [
+  ///   ("🐱", "喵 ฅ(°ω°ฅ)"),
+  ///   ("hello", "Hello {🐱}"),
   /// ]
-  /// .pipe_as_ref(TemplateResolver::from_raw_slice);
+  ///  .as_ref()
+  ///  .pipe(TemplateResolver::from_raw_slice)?;
+  ///
+  /// let text = res.get_with_context("hello", &[])?;
+  /// assert_eq!(text, "Hello 喵 ฅ(°ω°ฅ)");
+  ///
+  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
   /// ```
   pub fn from_raw_slice(raw: &[(&str, &str)]) -> ResolverResult<Self> {
-    raw
-      .iter()
+    Self::try_from_raw_entries_iter(raw.iter().copied())
+  }
+
+  /// Attempts to build a TemplateResolver from raw unprocessed key-value
+  /// entries.
+  ///
+  /// ## Process Flow
+  ///
+  /// 1. Accepts an iterator of raw (key, value) pairs
+  /// 2. Parses each value into template AST (Abstract Syntax Tree)
+  /// 3. Converts keys to normalized format
+  /// 4. Collects results into a TemplateAST
+  /// 5. Constructs the final resolver
+  ///
+  /// ## Parameters
+  /// - `iter`: Iterator over raw unvalidated entries.
+  ///   - e.g., `[(k1, v1), (k2, v2)].into_iter()`
+  ///
+  /// ## Type Constraints
+  /// - `K`: Key type with string-like representation
+  /// - `V`: Raw value type containing template text
+  /// - `I`: Iterator providing raw configuration entries
+  ///
+  /// See also:
+  ///   - [Self::from_raw_slice]
+  ///   - [Self::from_raw]
+  pub fn try_from_raw_entries_iter<K, V, I>(iter: I) -> ResolverResult<Self>
+  where
+    K: AsRef<str>,
+    V: AsRef<str>,
+    I: Iterator<Item = (K, V)>,
+  {
+    iter
       .map(|(key, value)| {
-        parse_value_or_map_err(key, value) //
-          .map(|tmpl| (convert_map_key(key), tmpl))
+        parse_value_or_map_err(key.as_ref(), value.as_ref()) //
+          .map(|tmpl| (convert_map_key(key.as_ref()), tmpl))
       })
       .collect::<Result<TemplateAST, _>>()?
       .pipe(Self)

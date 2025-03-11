@@ -3,7 +3,7 @@
 mod bin_code;
 
 #[cfg(feature = "bincode")]
-mod bin_code_nostd;
+pub(crate) mod bin_code_nostd;
 
 //
 mod from_slice;

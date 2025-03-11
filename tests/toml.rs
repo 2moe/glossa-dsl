@@ -1,4 +1,6 @@
-#![cfg(feature = "std")]
+#![cfg(all(feature = "std", feature = "serde"))]
+// #![cfg(feature = "std")]
+
 use anyhow::Result as AnyResult;
 use tap::{Pipe, Tap};
 use tmpl_resolver::{

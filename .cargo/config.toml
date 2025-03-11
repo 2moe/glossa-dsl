@@ -1,5 +1,6 @@
 [alias]
 ta = ["test", "--all-features", "--all"]
+clip = ["clippy", "--all-features"]
 open-doc = [
     "test",
     # "--package",

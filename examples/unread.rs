@@ -3,7 +3,6 @@
 //! ```ignore,sh
 //! cargo run --package tmpl-resolver --example unread --all-features
 //! ```
-#![cfg(all(feature = "std", feature = "serde"))]
 
 use anyhow::Result as AnyResult;
 use tap::{Pipe, TryConv};

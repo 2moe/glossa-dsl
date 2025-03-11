@@ -1,3 +1,5 @@
+use tap::Pipe;
+
 use crate::{
   TemplateResolver,
   error::{ResolverError, ResolverResult},
@@ -14,58 +16,63 @@ impl TryFrom<AHashRawMap> for TemplateResolver {
 }
 
 impl TemplateResolver {
-  /// Construct from HashMap (std only)
+  /// Construct from `IntoIterator<(K, V)>`, e.g., HashMap
   ///
   /// ## Example
   ///
   /// ```
-  ///   use tmpl_resolver::TemplateResolver;
-  ///   use tmpl_resolver::resolver::AHashRawMap;
+  /// use tmpl_resolver::TemplateResolver;
+  /// use tap::pipe::Pipe;
   ///
-  ///   let map = [
-  ///     (
-  ///       "salutation",
-  ///       "
-  ///       $gender ->
-  ///         [male] Mr.
-  ///         *[female] Ms.",
-  ///     ),
-  ///     ("g", "Good"),
-  ///     (
-  ///       "time-period",
-  ///       "$period ->
-  ///         [morning] {g} Morning
-  ///         [evening] {g} evening
-  ///         *[other] {g} {$period}
-  ///       ",
-  ///     ),
-  ///     ("greeting", "{ time-period }! { salutation }{ $name }"),
-  ///   ]
-  ///   .into_iter()
-  ///   .map(|(k, v)| (k.into(), v.into()))
-  ///   .collect::<AHashRawMap>();
+  /// let resolver = [
+  ///    (
+  ///      "salutation",
+  ///      "
+  ///      $gender ->
+  ///        [male] Mr.
+  ///        *[female] Ms.",
+  ///    ),
+  ///    ("g", "Good"),
+  ///    (
+  ///      "time-greeting",
+  ///      "$period ->
+  ///        [morning] {g} Morning
+  ///        [evening] {g} Evening
+  ///        *[other] {g} {$period}
+  ///      ",
+  ///    ),
+  ///    ("greeting", "{ time-greeting }! { salutation }{ $name }"),
+  ///  ]
+  ///  // .into_iter()
+  ///  // .map(|(k, v)| (k.into(), v.into()))
+  ///  // .collect::<tmpl_resolver::resolver::AHashRawMap>()
+  ///  .pipe(TemplateResolver::from_raw)?;
   ///
-  ///   let resolver = TemplateResolver::from_raw(map).expect("Failed to parse
-  /// raw map");
+  /// let text = resolver
+  ///    .get_with_context(
+  ///      "greeting",
+  ///      &[
+  ///        ("period", "evening"),
+  ///        ("name", "Alice"),
+  ///        ("gender", "unknown"),
+  ///      ],
+  ///    )
+  ///    .expect("Failed to get text");
   ///
-  ///   let text = resolver.get_with_context(
-  ///     "greeting",
-  ///     &[
-  ///       ("period", "evening"),
-  ///       ("name", "Alice"),
-  ///       ("gender", "unknown"),
-  ///     ],
-  ///   ).expect("Failed to get text");
-  ///   assert_eq!(text, "Good evening! Ms.Alice");
+  /// assert_eq!(text, "Good Evening! Ms.Alice");
+  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
   /// ```
-  pub fn from_raw(raw: AHashRawMap) -> ResolverResult<Self> {
-    use tap::Pipe;
-
-    raw
+  pub fn from_raw<K, V, I>(iter: I) -> ResolverResult<Self>
+  where
+    K: Into<kstring::KString> + core::fmt::Display,
+    V: AsRef<str>,
+    I: IntoIterator<Item = (K, V)>,
+  {
+    iter
       .into_iter()
       .map(|(key, value)| {
-        parse_value_or_map_err(&key, &value) //
-          .map(|tmpl| (key, tmpl))
+        parse_value_or_map_err(&key, value.as_ref()) //
+          .map(|tmpl| (key.into(), tmpl))
       })
       // .tap_dbg(|x| println!("{:?}", x.size_hint()))
       .collect::<Result<TemplateAST, _>>()?

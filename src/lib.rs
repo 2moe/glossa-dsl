@@ -118,6 +118,7 @@ pub type ContextMap<'a> = ahash::HashMap<&'a str, &'a str>;
 
 pub(crate) mod selector;
 pub(crate) mod template;
+pub use template::Template;
 
 #[cfg(test)]
 #[cfg(not(feature = "std"))]

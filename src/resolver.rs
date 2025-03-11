@@ -5,12 +5,14 @@ mod bin_code;
 #[cfg(feature = "bincode")]
 pub(crate) mod bin_code_nostd;
 
-//
 mod from_slice;
 mod lookup_value;
+mod ordered_map;
 
 #[cfg(feature = "std")]
 mod std_impl;
+
+use alloc::collections::BTreeMap;
 
 /// Compact string type optimized for small string storage.
 /// - Uses stack storage for strings <= 24 bytes (for 64-bit sys).
@@ -20,7 +22,6 @@ pub use compact_str::CompactString as MiniStr;
 #[cfg(feature = "std")]
 pub use kstring::KString;
 
-//
 use crate::template::Template;
 
 #[cfg(feature = "std")]
@@ -29,8 +30,14 @@ pub type AHashRawMap = ahash::HashMap<KString, MiniStr>;
 #[cfg(feature = "std")]
 pub type TemplateAST = ahash::HashMap<KString, Template>;
 
+#[cfg(feature = "std")]
+pub type OrderedAST = BTreeMap<KString, Template>;
+
 #[cfg(not(feature = "std"))]
-pub type TemplateAST = alloc::collections::BTreeMap<MiniStr, Template>;
+pub type OrderedAST = BTreeMap<MiniStr, Template>;
+
+#[cfg(not(feature = "std"))]
+pub type TemplateAST = OrderedAST;
 
 /// Main template resolution engine
 ///

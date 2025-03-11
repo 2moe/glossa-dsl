@@ -11,7 +11,7 @@ impl TryFrom<&[(&str, &str)]> for TemplateResolver {
   type Error = ResolverError;
 
   fn try_from(value: &[(&str, &str)]) -> Result<Self, Self::Error> {
-    Self::from_raw_slice(value)
+    Self::try_from_slice(value)
   }
 }
 
@@ -19,7 +19,7 @@ impl<const N: usize> TryFrom<[(&str, &str); N]> for TemplateResolver {
   type Error = ResolverError;
 
   fn try_from(value: [(&str, &str); N]) -> Result<Self, Self::Error> {
-    Self::try_from_raw_entries_iter(value.into_iter())
+    Self::try_from_str_entries(value.into_iter())
   }
 }
 
@@ -35,15 +35,15 @@ impl TemplateResolver {
   ///   ("hello", "Hello {🐱}"),
   /// ]
   ///  .as_ref()
-  ///  .pipe(TemplateResolver::from_raw_slice)?;
+  ///  .pipe(TemplateResolver::try_from_slice)?;
   ///
   /// let text = res.get_with_context("hello", &[])?;
   /// assert_eq!(text, "Hello 喵 ฅ(°ω°ฅ)");
   ///
   /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
   /// ```
-  pub fn from_raw_slice(raw: &[(&str, &str)]) -> ResolverResult<Self> {
-    Self::try_from_raw_entries_iter(raw.iter().copied())
+  pub fn try_from_slice(raw: &[(&str, &str)]) -> ResolverResult<Self> {
+    Self::try_from_str_entries(raw.iter().copied())
   }
 
   /// Attempts to build a TemplateResolver from raw unprocessed key-value
@@ -67,9 +67,9 @@ impl TemplateResolver {
   /// - `I`: Iterator providing raw configuration entries
   ///
   /// See also:
-  ///   - [Self::from_raw_slice]
-  ///   - [Self::from_raw]
-  pub fn try_from_raw_entries_iter<K, V, I>(iter: I) -> ResolverResult<Self>
+  ///   - [Self::try_from_slice]
+  ///   - [Self::try_from_raw]
+  pub fn try_from_str_entries<K, V, I>(iter: I) -> ResolverResult<Self>
   where
     K: AsRef<str>,
     V: AsRef<str>,
@@ -102,7 +102,7 @@ mod tests {
 
   #[ignore]
   #[test]
-  fn test_from_raw_slice() -> ResolverResult<()> {
+  fn test_try_from_slice() -> ResolverResult<()> {
     let _res = [
       ("g", "Good"),
       ("greeting", "{g} { time-period }! { $name }"),
@@ -113,7 +113,7 @@ mod tests {
           *[other] {$period}",
       ),
     ]
-    .pipe_as_ref(TemplateResolver::from_raw_slice)?;
+    .pipe_as_ref(TemplateResolver::try_from_slice)?;
 
     // extern crate std;
     // std::dbg!(res);

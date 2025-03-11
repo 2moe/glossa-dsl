@@ -79,7 +79,7 @@ fn main() -> ResolverResult<()> {
     "#
   )];
 
-  let resolver = TemplateResolver::from_raw_slice(&selector_msg)?;
+  let resolver: TemplateResolver = selector_msg.try_into()?;
 
   let success_msg = resolver.get_with_context("message", &[("status", "success")])?;
 

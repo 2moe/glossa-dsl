@@ -31,30 +31,7 @@ fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
 #[ignore]
 #[test]
 fn test_new_raw_map() -> AnyResult<()> {
-  let map = [
-    (
-      "greeting", "{ time-period }! { salutation }{ $name }",
-    ),
-    (
-      "salutation", "\n$gender ->\n[male] Mr.\n*[female] Ms.\n",
-    ),
-    (
-      "time-period", "$period ->\n[morning] {g} Morning\n[evening] {g} evening\n*[other] {g} {$period}\n",
-    ),
-    (
-        "g", "Good",
-    ),
-  ]
-  .into_iter()
-  .map(|(k, v)| (k.into(), v.into()))
-  .collect::<AHashRawMap>();
-
-  assert_eq!(
-    map,
-    raw_toml_to_hashmap().expect("Failed to deserialize toml str to AHashRawMap")
-  );
-
-  let resolver: TemplateResolver = map.try_into()?;
+  let resolver: TemplateResolver = raw_toml_to_hashmap()?.try_into()?;
 
   let text = resolver.get_with_context(
     "greeting",

@@ -1,17 +1,49 @@
+use core::fmt::Display;
+use std::collections::HashMap as StdHashMap;
+
+use kstring::KString;
 use tap::Pipe;
 
 use crate::{
   TemplateResolver,
   error::{ResolverError, ResolverResult},
   parsers::parse_value_or_map_err,
-  resolver::{AHashRawMap, TemplateAST},
+  resolver::TemplateAST,
 };
 
-impl TryFrom<AHashRawMap> for TemplateResolver {
+impl<K, V, S> TryFrom<StdHashMap<K, V, S>> for TemplateResolver
+where
+  K: Into<KString> + Display,
+  V: AsRef<str>,
+{
   type Error = ResolverError;
 
-  fn try_from(value: AHashRawMap) -> Result<Self, Self::Error> {
-    Self::from_raw(value)
+  fn try_from(value: StdHashMap<K, V, S>) -> Result<Self, Self::Error> {
+    Self::try_from_raw(value)
+  }
+}
+
+impl<K, V, S> TryFrom<ahash::AHashMap<K, V, S>> for TemplateResolver
+where
+  K: Into<KString> + Display,
+  V: AsRef<str>,
+{
+  type Error = ResolverError;
+
+  fn try_from(value: ahash::AHashMap<K, V, S>) -> Result<Self, Self::Error> {
+    Self::try_from_raw(value)
+  }
+}
+
+impl<K, V> TryFrom<Vec<(K, V)>> for TemplateResolver
+where
+  K: Into<KString> + Display,
+  V: AsRef<str>,
+{
+  type Error = ResolverError;
+
+  fn try_from(value: Vec<(K, V)>) -> Result<Self, Self::Error> {
+    Self::try_from_raw(value)
   }
 }
 
@@ -46,7 +78,7 @@ impl TemplateResolver {
   ///  // .into_iter()
   ///  // .map(|(k, v)| (k.into(), v.into()))
   ///  // .collect::<tmpl_resolver::resolver::AHashRawMap>()
-  ///  .pipe(TemplateResolver::from_raw)?;
+  ///  .pipe(TemplateResolver::try_from_raw)?;
   ///
   /// let text = resolver
   ///    .get_with_context(
@@ -62,9 +94,9 @@ impl TemplateResolver {
   /// assert_eq!(text, "Good Evening! Ms.Alice");
   /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
   /// ```
-  pub fn from_raw<K, V, I>(iter: I) -> ResolverResult<Self>
+  pub fn try_from_raw<K, V, I>(iter: I) -> ResolverResult<Self>
   where
-    K: Into<kstring::KString> + core::fmt::Display,
+    K: Into<KString> + Display,
     V: AsRef<str>,
     I: IntoIterator<Item = (K, V)>,
   {

@@ -60,7 +60,7 @@ fn main() -> ResolverResult<()> {
     "#
   )];
 
-  let resolver = TemplateResolver::from_raw_slice(&selector_msg)?;
+  let resolver: TemplateResolver = selector_msg.try_into()?;
 
   let success_msg = resolver.get_with_context("message", &[("status", "success")])?;
 
@@ -206,7 +206,7 @@ greeting = "{ time-period }! { gender }{ $name }"
   #[test]
   fn get_text() -> ResolverResult<()> {
     let raw = raw_toml_to_hashmap().expect("Failed to deser toml");
-    let resolver = resolver::TemplateResolver::from_raw(raw)?;
+    let resolver = resolver::TemplateResolver::try_from_raw(raw)?;
     let text = resolver.get_with_context(
       "greeting",
       &[
@@ -223,7 +223,7 @@ greeting = "{ time-period }! { gender }{ $name }"
   #[ignore]
   fn encode_ast_to_json() -> anyhow::Result<String> {
     let raw = raw_toml_to_hashmap()?;
-    let resolver = resolver::TemplateResolver::from_raw(raw)?;
+    let resolver = resolver::TemplateResolver::try_from_raw(raw)?;
     let json_str = serde_json::to_string_pretty(&resolver)?;
     // println!("{toml_str}");
     Ok(json_str)
@@ -268,7 +268,7 @@ greeting = "{ time-period }! { gender }{ $name }"
   fn bench_resolve() -> anyhow::Result<()> {
     let raw = raw_toml_to_hashmap()?;
     let resolver =
-      resolver::TemplateResolver::from_raw(raw).expect("Invalid template");
+      resolver::TemplateResolver::try_from_raw(raw).expect("Invalid template");
     dbg!(&resolver);
 
     simple_benchmark(|| {

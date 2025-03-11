@@ -30,8 +30,8 @@ impl TemplateResolver {
     parts: &[TemplatePart],
   ) -> Result<MiniStr, ResolverError> {
     parts.iter().try_fold(
-      MiniStr::const_new(""),
-      |mut result, part| -> Result<MiniStr, ResolverError> {
+      MiniStr::const_new(""), //
+      |mut result, part| {
         let push_str = |s| {
           result.push_str(s);
           Ok(result)

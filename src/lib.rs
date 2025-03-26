@@ -115,6 +115,8 @@ pub use resolver::TemplateResolver;
 
 #[cfg(feature = "std")]
 pub type ContextMap<'a> = ahash::HashMap<&'a str, &'a str>;
+#[cfg(feature = "std")]
+pub type ContextMapBuf = ahash::HashMap<kstring::KString, MiniStr>;
 
 pub(crate) mod selector;
 pub(crate) mod template;

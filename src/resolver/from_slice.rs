@@ -99,6 +99,8 @@ impl TemplateResolver {
   ///   .into_iter()
   ///   .pipe(TemplateResolver::try_from_str_entries)?;
   ///
+  /// assert_eq!(res.try_get("🐱")?, "喵 ฅ(°ω°ฅ)");
+  ///
   /// # }
   /// # Ok::<(), tmpl_resolver::Error>(())
   /// ```

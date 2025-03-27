@@ -148,7 +148,7 @@ hello = "Hello {🐱}"
 rust:
 
 ```rust
-let text = res.get_with_context("hello", &[])?;
+let text = res.try_get("hello")?;
 assert_eq!(text, "Hello ฅ(°ω°ฅ)");
 ```
 
@@ -209,7 +209,7 @@ fn main() -> ResolverResult<()> {
   .pipe(get_text)?;
 
   assert_eq!(text, "早安喵 ฅ(°ω°ฅ)！Young先生。");
-  assert_eq!(res.get_with_context("🐱", &[])?, "喵 ฅ(°ω°ฅ)");
+  assert_eq!(res.try_get("🐱")?, "喵 ฅ(°ω°ฅ)");
 
   Ok(())
 }

@@ -45,7 +45,7 @@ fn test_emoji_var() -> ResolverResult<()> {
   .pipe(get_text)?;
 
   assert_eq!(text, "早安喵 ฅ(°ω°ฅ)！Young🧑🧑‍🏫。");
-  assert_eq!(res.get_with_context("🐱", &[])?, "喵 ฅ(°ω°ฅ)");
+  assert_eq!(res.try_get("🐱")?, "喵 ฅ(°ω°ฅ)");
 
   // dbg!(&text);
   // dbg!(res);

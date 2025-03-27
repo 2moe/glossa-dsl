@@ -66,6 +66,43 @@ impl TemplateResolver {
   /// - `V`: Raw value type containing template text
   /// - `I`: Iterator providing raw configuration entries
   ///
+  /// ## Example
+  ///
+  /// ```
+  /// # #[cfg(all(feature = "serde", feature = "toml"))] {
+  /// use tap::Pipe;
+  /// use tmpl_resolver::{TemplateResolver, resolver::MiniStr};
+  ///
+  /// extern crate alloc;
+  /// use alloc::collections::BTreeMap;
+  ///
+  /// let res = r##"
+  ///   "🐱" = "喵 ฅ(°ω°ฅ)"
+  ///
+  ///   "问候" = """
+  /// $period ->
+  ///   [morning] 早安{🐱}
+  ///   [night] 晚安{🐱}
+  ///   *[other] {$period}好
+  ///   """
+  ///
+  ///   "称谓" = """
+  ///   $gender ->
+  /// [male] 先生
+  /// [female] 女士
+  /// *[test] { $🧑‍🏫 }
+  ///   """
+  ///
+  ///   greeting = "{ 问候 }！{ $name }{ 称谓 }。"
+  /// "##
+  ///   .pipe(toml::from_str::<BTreeMap<MiniStr, MiniStr>>)?
+  ///   .into_iter()
+  ///   .pipe(TemplateResolver::try_from_str_entries)?;
+  ///
+  /// # }
+  /// # Ok::<(), tmpl_resolver::Error>(())
+  /// ```
+  ///
   /// See also:
   ///   - [Self::try_from_slice]
   ///   - [Self::try_from_raw]

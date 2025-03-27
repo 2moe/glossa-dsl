@@ -33,7 +33,6 @@ The core logic is implemented using `nom` and can be used in `no_std`.
 
 - `[]`
   - Minimal configuration for `no_std` use
-- ["all"]: Enable all features
 - ["std"]
   - Enables standard library
   - Uses ahash::HashMap for faster lookups
@@ -42,6 +41,8 @@ The core logic is implemented using `nom` and can be used in `no_std`.
   - Enables template storage/transmission
 - ["bincode"]
   - Efficient binary serialization
+- ["toml"]
+  - Enables `ResolverError::{DecodeTomlError, EncodeTomlError}`
 
 ## Basic
 
@@ -100,7 +101,7 @@ fn main() -> ResolverResult<()> {
 - `"{{{ {{a} }}}"` => `"{{a}"`
 
 ```rust
-use tmpl_resolver::{ResolverResult, TemplateResolver};
+use tmpl_resolver::{error::ResolverResult, TemplateResolver};
 
 fn main() -> ResolverResult<()> {
   let resolver: TemplateResolver = [
@@ -172,7 +173,7 @@ assert_eq!(text, "Hello QwQ");
 
 ```rust
 use tap::Pipe;
-use tmpl_resolver::{ResolverResult, TemplateResolver, resolver::AHashRawMap};
+use tmpl_resolver::{error::ResolverResult, TemplateResolver, resolver::AHashRawMap};
 
 fn main() -> ResolverResult<()> {
   let res: TemplateResolver = r##"

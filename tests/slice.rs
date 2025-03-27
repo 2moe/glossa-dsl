@@ -1,4 +1,4 @@
-use tmpl_resolver::{ResolverResult, TemplateResolver};
+use tmpl_resolver::{TemplateResolver, error::ResolverResult};
 
 #[test]
 fn test_resolver_from_slice() -> ResolverResult<()> {

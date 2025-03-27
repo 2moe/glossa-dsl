@@ -15,7 +15,6 @@ A lightweight template resolution engine with conditional logic support.
 
 - `[]`
   - Minimal configuration for `no_std` use
-- ["all"]: Enable all features
 - ["std"]
   - Enables standard library
   - Uses ahash::HashMap for faster lookups
@@ -24,6 +23,8 @@ A lightweight template resolution engine with conditional logic support.
   - Enables template storage/transmission
 - ["bincode"]
   - Efficient binary serialization
+- ["toml"]
+  - Enables `ResolverError::{DecodeTomlError, EncodeTomlError}`
 
 ## Examples
 
@@ -81,7 +82,7 @@ fn main() -> ResolverResult<()> {
 - `"{{{ {{a} }}}"` => `"{{a}"`
 
 ```rust
-use tmpl_resolver::{ResolverResult, TemplateResolver};
+use tmpl_resolver::{error::ResolverResult, TemplateResolver};
 
 fn main() -> ResolverResult<()> {
   let resolver: TemplateResolver = [
@@ -104,7 +105,7 @@ fn main() -> ResolverResult<()> {
 extern crate alloc;
 
 pub mod error;
-pub use error::ResolverResult;
+pub use error::{ResolverError as Error, ResolverResult as Result};
 
 mod parsers;
 pub(crate) mod part;
@@ -159,7 +160,7 @@ mod no_std_tests {
   }
 }
 
-#[cfg(feature = "all")]
+#[cfg(all(feature = "std", feature = "serde"))]
 #[cfg(test)]
 mod tests {
   use std::fs;
@@ -170,8 +171,9 @@ mod tests {
 
   use super::*;
   use crate::error::ResolverResult;
+  type TomlResult<T> = core::result::Result<T, toml::de::Error>;
 
-  fn raw_toml_to_hashmap() -> Result<HashMap<KString, MiniStr>, toml::de::Error> {
+  fn raw_toml_to_hashmap() -> TomlResult<HashMap<KString, MiniStr>> {
     let text = r##"
 g = "Good"
 time-period = """
@@ -232,6 +234,7 @@ greeting = "{ time-period }! { gender }{ $name }"
     Ok(json_str)
   }
 
+  #[cfg(feature = "bincode")]
   #[ignore]
   #[test]
   fn test_serde_bincode_from_json_str() -> anyhow::Result<()> {
@@ -248,6 +251,7 @@ greeting = "{ time-period }! { gender }{ $name }"
     Ok(())
   }
 
+  #[cfg(feature = "bincode")]
   #[ignore]
   #[test]
   fn test_deser_bincode_from_file() -> anyhow::Result<()> {

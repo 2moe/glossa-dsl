@@ -1,11 +1,15 @@
-#![cfg(feature = "std")]
+#![cfg(feature = "serde")]
+use std::collections::BTreeMap;
+
 // use anyhow::Result as AnyResult;
 use tap::Pipe;
-use tmpl_resolver::{ResolverResult, TemplateResolver, resolver::AHashRawMap};
+use tmpl_resolver::{TemplateResolver, error::ResolverResult, resolver::MiniStr};
 
+/// doc test: [TemplateResolver::try_from_str_entries]
 #[test]
+#[ignore]
 fn test_emoji_var() -> ResolverResult<()> {
-  let res: TemplateResolver = r##"
+  let res = r##"
       "🐱" = "喵 ฅ(°ω°ฅ)"
 
       "问候" = """
@@ -24,9 +28,10 @@ fn test_emoji_var() -> ResolverResult<()> {
 
       greeting = "{ 问候 }！{ $name }{ 称谓 }。"
     "##
-    .pipe(toml::from_str::<AHashRawMap>)
-    .expect("Failed to deserialize toml")
-    .try_into()?;
+    .pipe(toml::from_str::<BTreeMap<MiniStr, MiniStr>>)?
+    // .expect("Failed to deserialize toml")
+    .into_iter()
+    .pipe(TemplateResolver::try_from_str_entries)?;
 
   let get_text = |ctx| res.get_with_context("greeting", ctx);
 

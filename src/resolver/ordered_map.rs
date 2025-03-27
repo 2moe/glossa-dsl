@@ -42,9 +42,9 @@ impl TemplateResolver {
 ///
 /// ## Feature-dependent Behavior
 ///
-/// - ​**With `std` feature**: Converts internal storage to a [`BTreeMap`]-backed
-///   ordered AST through iterative collection. This guarantees deterministic
-///   ordering.
+/// - ​**With `std` feature**: Converts internal storage to a
+///   [`alloc::collections::BTreeMap`]-backed ordered AST through iterative
+///   collection. This guarantees deterministic ordering.
 /// - ​**Without `std` feature**: Directly returns the pre-ordered AST structure
 ///   without conversion, optimized for no_std environments.
 impl From<TemplateResolver> for OrderedAST {

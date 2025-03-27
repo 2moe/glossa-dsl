@@ -2,7 +2,9 @@
 //! cargo run --package tmpl-resolver --example toml --all-features
 //! ```
 use tap::{Pipe, Tap};
-use tmpl_resolver::{ResolverResult, TemplateResolver, resolver::AHashRawMap};
+use tmpl_resolver::{
+  TemplateResolver, error::ResolverResult, resolver::AHashRawMap,
+};
 
 fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
   r##"

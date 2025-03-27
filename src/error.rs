@@ -35,5 +35,12 @@ pub enum ResolverError {
   #[cfg(feature = "bincode")]
   #[error("Bincode deserialization error: {0}")]
   DecodeBinError(#[from] bincode::error::DecodeError),
-  //
+
+  #[cfg(feature = "toml")]
+  #[error("TOML deserialization error: {0}")]
+  DecodeTomlError(#[from] toml::de::Error),
+
+  #[cfg(feature = "toml")]
+  #[error("TOML serialization error: {0}")]
+  EncodeTomlError(#[from] toml::ser::Error), //
 }

@@ -14,7 +14,7 @@ use crate::{MiniStr, template};
 /// 1. Match parameter against case values
 /// 2. Use first matching case template
 /// 3. Fallback to default if no matches
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Selector {
   /// Parameter name to check

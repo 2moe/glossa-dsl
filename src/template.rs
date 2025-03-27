@@ -24,7 +24,7 @@ pub(crate) type TinyTemplateParts = TinyVec<[TemplatePart; 5]>;
 /// ## Serialization
 /// - Derives Serialize/Deserialize with serde feature
 /// - Uses compact binary representation with bincode
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Template {
   /// Conditional template branch

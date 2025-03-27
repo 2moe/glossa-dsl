@@ -47,9 +47,9 @@ pub type TemplateAST = OrderedAST;
 ///   - Uses HashMap with std for O(1) lookups
 /// - no_std:
 ///   - Falls back to BTreeMap in no_std (O(log n) lookups)
-#[derive(Debug, Default, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct TemplateResolver(TemplateAST);
+pub struct TemplateResolver(pub TemplateAST);
 
 impl core::ops::Deref for TemplateResolver {
   type Target = TemplateAST;

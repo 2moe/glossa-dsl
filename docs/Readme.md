@@ -177,7 +177,8 @@ use tmpl_resolver::{error::ResolverResult, TemplateResolver, resolver::AHashRawM
 
 fn main() -> ResolverResult<()> {
   let res: TemplateResolver = r##"
-      "🐱" = "喵 ฅ(°ω°ฅ)"
+      meow = "喵"
+      "🐱" = "{ meow } ฅ(°ω°ฅ)"
 
       "问候" = """
         $period ->

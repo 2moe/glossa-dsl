@@ -1,3 +1,5 @@
+use alloc::collections::BTreeMap;
+
 use tap::Pipe;
 
 use crate::{
@@ -19,6 +21,18 @@ impl<const N: usize> TryFrom<[(&str, &str); N]> for TemplateResolver {
   type Error = ResolverError;
 
   fn try_from(value: [(&str, &str); N]) -> Result<Self, Self::Error> {
+    Self::try_from_str_entries(value.into_iter())
+  }
+}
+
+impl<K, V> TryFrom<BTreeMap<K, V>> for TemplateResolver
+where
+  K: AsRef<str>,
+  V: AsRef<str>,
+{
+  type Error = ResolverError;
+
+  fn try_from(value: BTreeMap<K, V>) -> Result<Self, Self::Error> {
     Self::try_from_str_entries(value.into_iter())
   }
 }
@@ -71,10 +85,8 @@ impl TemplateResolver {
   /// ```
   /// # #[cfg(all(feature = "serde", feature = "toml"))] {
   /// use tap::Pipe;
-  /// use tmpl_resolver::{TemplateResolver, resolver::MiniStr};
+  /// use tmpl_resolver::{TemplateResolver, resolver::MiniStr, resolver::BTreeRawMap};
   ///
-  /// extern crate alloc;
-  /// use alloc::collections::BTreeMap;
   ///
   /// let res = r##"
   ///   "🐱" = "喵 ฅ(°ω°ฅ)"
@@ -95,7 +107,7 @@ impl TemplateResolver {
   ///
   ///   greeting = "{ 问候 }！{ $name }{ 称谓 }。"
   /// "##
-  ///   .pipe(toml::from_str::<BTreeMap<MiniStr, MiniStr>>)?
+  ///   .pipe(toml::from_str::<BTreeRawMap>)?
   ///   .into_iter()
   ///   .pipe(TemplateResolver::try_from_str_entries)?;
   ///

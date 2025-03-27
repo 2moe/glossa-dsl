@@ -27,6 +27,8 @@ use crate::template::Template;
 #[cfg(feature = "std")]
 pub type AHashRawMap = ahash::HashMap<KString, MiniStr>;
 
+pub type BTreeRawMap = BTreeMap<MiniStr, MiniStr>;
+
 #[cfg(feature = "std")]
 pub type TemplateAST = ahash::HashMap<KString, Template>;
 

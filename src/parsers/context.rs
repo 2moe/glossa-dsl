@@ -1,12 +1,10 @@
-use alloc::collections::BTreeMap;
-
-use crate::MiniStr;
+use crate::resolver::BTreeRawMap;
 
 #[derive(Debug, Clone)]
 pub(crate) enum Context<'a> {
   Empty,
   Slice(&'a [(&'a str, &'a str)]),
-  BTree(&'a BTreeMap<MiniStr, MiniStr>),
+  BTree(&'a BTreeRawMap),
   #[cfg(feature = "std")]
   Map(&'a crate::ContextMap<'a>),
   #[cfg(feature = "std")]

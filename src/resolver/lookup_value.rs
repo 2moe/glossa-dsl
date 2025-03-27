@@ -6,7 +6,7 @@ use crate::{
   MiniStr,
   error::{ResolverError, ResolverResult},
   parsers::context::Context,
-  resolver::TemplateResolver,
+  resolver::{BTreeRawMap, TemplateResolver},
   template::Template,
 };
 
@@ -66,7 +66,7 @@ impl TemplateResolver {
   pub fn get_with_ctx_btree_map(
     &self,
     var_name: &str,
-    context_map: &alloc::collections::BTreeMap<MiniStr, MiniStr>,
+    context_map: &BTreeRawMap,
   ) -> ResolverResult<MiniStr> {
     let process = |ctx| self.try_get_template_and_process(var_name, ctx);
 

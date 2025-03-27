@@ -1,9 +1,10 @@
 #![cfg(feature = "serde")]
-use std::collections::BTreeMap;
 
 // use anyhow::Result as AnyResult;
-use tap::Pipe;
-use tmpl_resolver::{TemplateResolver, error::ResolverResult, resolver::MiniStr};
+use tap::{Pipe, TryConv};
+use tmpl_resolver::{
+  TemplateResolver, error::ResolverResult, resolver::BTreeRawMap,
+};
 
 /// doc test: [TemplateResolver::try_from_str_entries]
 #[test]
@@ -28,10 +29,11 @@ fn test_emoji_var() -> ResolverResult<()> {
 
       greeting = "{ 问候 }！{ $name }{ 称谓 }。"
     "##
-    .pipe(toml::from_str::<BTreeMap<MiniStr, MiniStr>>)?
+    .pipe(toml::from_str::<BTreeRawMap>)?
     // .expect("Failed to deserialize toml")
-    .into_iter()
-    .pipe(TemplateResolver::try_from_str_entries)?;
+    // .into_iter()
+    // .pipe(TemplateResolver::try_from_str_entries)?;
+    .try_conv::<TemplateResolver>()?;
 
   let get_text = |ctx| res.get_with_context("greeting", ctx);
 

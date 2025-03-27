@@ -125,7 +125,7 @@ Add dependencies
 
 ```sh
 cargo add toml tap anyhow
-cargo add tmpl-resolver --features=std,serde
+cargo add tmpl-resolver --features=std,serde,toml
 ```
 
 ### Emoji
@@ -194,8 +194,7 @@ fn main() -> ResolverResult<()> {
 
       greeting = "{ 问候 }！{ $name }{ 称谓 }。"
     "##
-    .pipe(toml::from_str::<AHashRawMap>)
-    .expect("Failed to deserialize toml")
+    .pipe(toml::from_str::<AHashRawMap>)?
     .try_into()?;
 
   let get_text = |ctx| res.get_with_context("greeting", ctx);

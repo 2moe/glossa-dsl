@@ -2,10 +2,8 @@
 // #![cfg(feature = "std")]
 
 use anyhow::Result as AnyResult;
+use glossa_dsl::{Resolver, error::ResolverResult, resolver::AHashRawMap};
 use tap::{Pipe, Tap};
-use glossa_dsl::{
-  Resolver, error::ResolverResult, resolver::AHashRawMap,
-};
 
 fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
   r##"

@@ -25,8 +25,7 @@ fn test_ser_no_std() -> ResolverResult<()> {
   let toml_str = toml::to_string_pretty(&res).expect("Invalid data");
   println!("{toml_str}");
 
-  let _data: Resolver =
-    toml::from_str(&toml_str).expect("Invalid toml string");
+  let _data: Resolver = toml::from_str(&toml_str).expect("Invalid toml string");
 
   Ok(())
 }

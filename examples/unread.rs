@@ -1,12 +1,12 @@
 //! Simple L10n Message Example
 //!
 //! ```ignore,sh
-//! cargo run --package tmpl-resolver --example unread --all-features
+//! cargo run --package glossa-dsl --example unread --all-features
 //! ```
 
 use anyhow::Result as AnyResult;
+use glossa_dsl::{Resolver, resolver::AHashRawMap};
 use tap::{Pipe, TryConv};
-use tmpl_resolver::{TemplateResolver, resolver::AHashRawMap};
 
 fn main() -> AnyResult<()> {
   let get_text = |lang| -> AnyResult<_> {
@@ -15,7 +15,7 @@ fn main() -> AnyResult<()> {
       _ => EN_TOML,
     }
     .pipe(toml::from_str::<AHashRawMap>)?
-    .try_conv::<TemplateResolver>()?
+    .try_conv::<Resolver>()?
     .pipe(|r| {
       move |num_str| {
         r.get_with_context("show-unread-messages-count", &[("num", num_str)])

@@ -8,10 +8,10 @@ use bincode::serde::{decode_from_std_read, encode_into_std_write};
 use tap::Pipe;
 
 use crate::{
-  TemplateResolver, error::ResolverResult, resolver::bin_code_nostd::bincode_std_cfg,
+  Resolver, error::ResolverResult, resolver::bin_code_nostd::bincode_std_cfg,
 };
 
-impl TemplateResolver {
+impl Resolver {
   /// Serializes the resolver to bincode format and writes to a file
   ///
   /// ## Design Notes
@@ -23,9 +23,9 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```no_run
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
-  /// let resolver: TemplateResolver = [
+  /// let resolver: Resolver = [
   ///     ("h", "Hello"),
   ///     ("greeting", "{h} { $name }!")
   ///   ]
@@ -34,7 +34,7 @@ impl TemplateResolver {
   ///
   /// let file = "tmp.bincode";
   ///
-  /// resolver.encode_bin(file).expect("Failed to encode TemplateResolver to bincode file");
+  /// resolver.encode_bin(file).expect("Failed to encode Resolver to bincode file");
   /// ```
   pub fn encode_bin<P: AsRef<Path>>(&self, dst_file: P) -> ResolverResult<usize> {
     let encode = |dst| encode_into_std_write(self, dst, bincode_std_cfg());
@@ -53,11 +53,11 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```no_run
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
   /// let file = "tmp.bincode";
   ///
-  /// TemplateResolver::decode_bin(file).expect("Failed to decode bincode file to TemplateResolver");
+  /// Resolver::decode_bin(file).expect("Failed to decode bincode file to Resolver");
   /// ```
   pub fn decode_bin<P: AsRef<Path>>(src_file: P) -> ResolverResult<Self> {
     let decode = |src| decode_from_std_read::<Self, _, _>(src, bincode_std_cfg());

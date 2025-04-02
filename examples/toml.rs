@@ -1,10 +1,8 @@
 //! ```ignore,sh
-//! cargo run --package tmpl-resolver --example toml --all-features
+//! cargo run --package glossa-dsl --example toml --all-features
 //! ```
+use glossa_dsl::{Resolver, error::ResolverResult, resolver::AHashRawMap};
 use tap::{Pipe, Tap};
-use tmpl_resolver::{
-  TemplateResolver, error::ResolverResult, resolver::AHashRawMap,
-};
 
 fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
   r##"
@@ -28,7 +26,7 @@ fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
 }
 
 fn main() -> ResolverResult<()> {
-  let resolver: TemplateResolver = raw_toml_to_hashmap()
+  let resolver: Resolver = raw_toml_to_hashmap()
     .expect("Failed to deserialize toml str to AHashRawMap")
     .try_into()?;
 

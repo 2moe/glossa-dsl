@@ -5,13 +5,13 @@ use kstring::KString;
 use tap::Pipe;
 
 use crate::{
-  TemplateResolver,
+  Resolver,
   error::{ResolverError, ResolverResult},
   parsers::parse_value_or_map_err,
-  resolver::TemplateAST,
+  resolver::AST,
 };
 
-impl<K, V, S> TryFrom<StdHashMap<K, V, S>> for TemplateResolver
+impl<K, V, S> TryFrom<StdHashMap<K, V, S>> for Resolver
 where
   K: Into<KString> + Display,
   V: AsRef<str>,
@@ -23,7 +23,7 @@ where
   }
 }
 
-impl<K, V, S> TryFrom<ahash::AHashMap<K, V, S>> for TemplateResolver
+impl<K, V, S> TryFrom<ahash::AHashMap<K, V, S>> for Resolver
 where
   K: Into<KString> + Display,
   V: AsRef<str>,
@@ -35,7 +35,7 @@ where
   }
 }
 
-impl<K, V> TryFrom<Vec<(K, V)>> for TemplateResolver
+impl<K, V> TryFrom<Vec<(K, V)>> for Resolver
 where
   K: Into<KString> + Display,
   V: AsRef<str>,
@@ -47,13 +47,13 @@ where
   }
 }
 
-impl TemplateResolver {
+impl Resolver {
   /// Construct from `IntoIterator<(K, V)>`, e.g., HashMap
   ///
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   /// use tap::pipe::Pipe;
   ///
   /// let resolver = [
@@ -77,8 +77,8 @@ impl TemplateResolver {
   ///  ]
   ///  // .into_iter()
   ///  // .map(|(k, v)| (k.into(), v.into()))
-  ///  // .collect::<tmpl_resolver::resolver::AHashRawMap>()
-  ///  .pipe(TemplateResolver::try_from_raw)?;
+  ///  // .collect::<glossa_dsl::resolver::AHashRawMap>()
+  ///  .pipe(Resolver::try_from_raw)?;
   ///
   /// let text = resolver
   ///    .get_with_context(
@@ -92,7 +92,7 @@ impl TemplateResolver {
   ///    .expect("Failed to get text");
   ///
   /// assert_eq!(text, "Good Evening! Ms.Alice");
-  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
+  /// # Ok::<(), glossa_dsl::error::ResolverError>(())
   /// ```
   pub fn try_from_raw<K, V, I>(iter: I) -> ResolverResult<Self>
   where
@@ -107,7 +107,7 @@ impl TemplateResolver {
           .map(|tmpl| (key.into(), tmpl))
       })
       // .tap_dbg(|x| println!("{:?}", x.size_hint()))
-      .collect::<Result<TemplateAST, _>>()?
+      .collect::<Result<AST, _>>()?
       .pipe(Self)
       .pipe(Ok)
   }

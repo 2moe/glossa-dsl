@@ -92,6 +92,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "glossa-dsl"
+version = "0.0.15"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "bincode",
+ "compact_str",
+ "kstring",
+ "nom",
+ "serde",
+ "serde_json",
+ "tap",
+ "testutils",
+ "thiserror",
+ "tinyvec",
+ "toml",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -152,9 +171,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.1"
+version = "1.21.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d75b0bedcc4fe52caa0e03d9f1151a323e4aa5e2d78ba3580400cd3c9e2bc4bc"
+checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "proc-macro-error-attr2"
@@ -336,25 +355,6 @@ checksum = "be28110ab94064f103a2a24597ed8f556f831d7334751ab991967de16c12d18f"
 dependencies = [
  "tinyvec",
  "tinyvec_macros",
-]
-
-[[package]]
-name = "tmpl-resolver"
-version = "0.0.14"
-dependencies = [
- "ahash",
- "anyhow",
- "bincode",
- "compact_str",
- "kstring",
- "nom",
- "serde",
- "serde_json",
- "tap",
- "testutils",
- "thiserror",
- "tinyvec",
- "toml",
 ]
 
 [[package]]

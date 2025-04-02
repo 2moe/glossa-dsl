@@ -1,8 +1,8 @@
-use tmpl_resolver::{TemplateResolver, error::ResolverResult};
+use glossa_dsl::{Resolver, error::ResolverResult};
 
 #[test]
 fn test_resolver_from_slice() -> ResolverResult<()> {
-  let resolver: TemplateResolver =
+  let resolver: Resolver =
     [("h", "Hello"), ("greeting", "{h} { $name }!")].try_into()?;
 
   let ctx = [("name", "Alice")];

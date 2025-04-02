@@ -3,8 +3,8 @@
 
 use anyhow::Result as AnyResult;
 use tap::{Pipe, Tap};
-use tmpl_resolver::{
-  TemplateResolver, error::ResolverResult, resolver::AHashRawMap,
+use glossa_dsl::{
+  Resolver, error::ResolverResult, resolver::AHashRawMap,
 };
 
 fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
@@ -31,7 +31,7 @@ fn raw_toml_to_hashmap() -> Result<AHashRawMap, toml::de::Error> {
 #[ignore]
 #[test]
 fn test_new_raw_map() -> AnyResult<()> {
-  let resolver: TemplateResolver = raw_toml_to_hashmap()?.try_into()?;
+  let resolver: Resolver = raw_toml_to_hashmap()?.try_into()?;
 
   let text = resolver.get_with_context(
     "greeting",
@@ -47,7 +47,7 @@ fn test_new_raw_map() -> AnyResult<()> {
 
 #[test]
 fn test_get_with_context() -> ResolverResult<()> {
-  let resolver: TemplateResolver = raw_toml_to_hashmap()
+  let resolver: Resolver = raw_toml_to_hashmap()
     .expect("Failed to deserialize toml str to AHashRawMap")
     .try_into()?;
 

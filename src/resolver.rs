@@ -30,7 +30,7 @@ pub type AHashRawMap = ahash::HashMap<KString, MiniStr>;
 pub type BTreeRawMap = BTreeMap<MiniStr, MiniStr>;
 
 #[cfg(feature = "std")]
-pub type TemplateAST = ahash::HashMap<KString, Template>;
+pub type AST = ahash::HashMap<KString, Template>;
 
 #[cfg(feature = "std")]
 pub type OrderedAST = BTreeMap<KString, Template>;
@@ -39,7 +39,7 @@ pub type OrderedAST = BTreeMap<KString, Template>;
 pub type OrderedAST = BTreeMap<MiniStr, Template>;
 
 #[cfg(not(feature = "std"))]
-pub type TemplateAST = OrderedAST;
+pub type AST = OrderedAST;
 
 /// Main template resolution engine
 ///
@@ -51,10 +51,10 @@ pub type TemplateAST = OrderedAST;
 ///   - Falls back to BTreeMap in no_std (O(log n) lookups)
 #[derive(Default, Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct TemplateResolver(pub TemplateAST);
+pub struct Resolver(pub AST);
 
-impl core::ops::Deref for TemplateResolver {
-  type Target = TemplateAST;
+impl core::ops::Deref for Resolver {
+  type Target = AST;
 
   fn deref(&self) -> &Self::Target {
     &self.0

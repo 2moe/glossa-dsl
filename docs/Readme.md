@@ -1,20 +1,22 @@
-# tmpl_resolver
+# glossa-DSL
 
-A lightweight template resolution engine with conditional logic support.
+[![glossa-dsl.crate](https://img.shields.io/crates/v/glossa-dsl.svg?logo=rust&logoColor=lightsalmon&label=glossa-dsl)](https://crates.io/crates/glossa-dsl)
+[![Documentation](https://docs.rs/glossa-dsl/badge.svg)](https://docs.rs/glossa-dsl)
+
+[![Apache-2 licensed](https://img.shields.io/crates/l/glossa-dsl.svg?logo=apache)](../License)
+
+> old_name: tmpl_resolver
+
+A **domain-specific language** designed exclusively for localization (L10n).
 
 Its syntax is similar to Mozilla Fluent, but it doesn't have as many features as Fluent.
 
 The core logic is implemented using `nom` and can be used in `no_std`.
 
-[![tmpl-resolver.crate](https://img.shields.io/crates/v/tmpl-resolver)](https://crates.io/crates/tmpl-resolver)
-[![Documentation](https://docs.rs/tmpl-resolver/badge.svg)](https://docs.rs/tmpl-resolver)
-
-[![Apache-2 licensed](https://img.shields.io/crates/l/tmpl-resolver.svg)](../License)
-
 <!--
 ## Core Types
 
-- [`TemplateResolver`]: Main resolution engine
+- [`Resolver`]: Main resolution engine
 
 ### Private Types
 
@@ -47,10 +49,10 @@ The core logic is implemented using `nom` and can be used in `no_std`.
 ## Basic
 
 ```rust
-use tmpl_resolver::{TemplateResolver, error::ResolverResult};
+use glossa_dsl::{Resolver, error::ResolverResult};
 
 fn main() -> ResolverResult<()> {
-  let resolver: TemplateResolver = [
+  let resolver: Resolver = [
       ("h", "Hello"),
       ("greeting", "{h} { $name }! Today is {$day}.")
     ]
@@ -67,7 +69,7 @@ fn main() -> ResolverResult<()> {
 ## Conditional Logic
 
 ```rust
-use tmpl_resolver::{TemplateResolver, error::ResolverResult};
+use glossa_dsl::{Resolver, error::ResolverResult};
 
 fn main() -> ResolverResult<()> {
   let selector_msg = [(
@@ -80,7 +82,7 @@ fn main() -> ResolverResult<()> {
     "#
   )];
 
-  let resolver: TemplateResolver = selector_msg.try_into()?;
+  let resolver: Resolver = selector_msg.try_into()?;
 
   let success_msg = resolver.get_with_context("message", &[("status", "success")])?;
 
@@ -101,10 +103,10 @@ fn main() -> ResolverResult<()> {
 - `"{{{ {{a} }}}"` => `"{{a}"`
 
 ```rust
-use tmpl_resolver::{error::ResolverResult, TemplateResolver};
+use glossa_dsl::{error::ResolverResult, Resolver};
 
 fn main() -> ResolverResult<()> {
-  let resolver: TemplateResolver = [
+  let resolver: Resolver = [
     ("h", "Hello { $name }"),
     ("how_are_you", "How Are You"),
     ("greeting", "{h}!{{ how_are_you }}? {{    {$name} }}"),
@@ -125,7 +127,7 @@ Add dependencies
 
 ```sh
 cargo add toml tap anyhow
-cargo add tmpl-resolver --features=std,serde,toml
+cargo add glossa-dsl --features=std,serde,toml
 ```
 
 ### Emoji
@@ -173,10 +175,10 @@ assert_eq!(text, "Hello QwQ");
 
 ```rust
 use tap::Pipe;
-use tmpl_resolver::{error::ResolverResult, TemplateResolver, resolver::AHashRawMap};
+use glossa_dsl::{error::ResolverResult, Resolver, resolver::AHashRawMap};
 
 fn main() -> ResolverResult<()> {
-  let res: TemplateResolver = r##"
+  let res: Resolver = r##"
       meow = "喵"
       "🐱" = "{ meow } ฅ(°ω°ฅ)"
 
@@ -220,7 +222,7 @@ fn main() -> ResolverResult<()> {
 ```rust
 use anyhow::Result as AnyResult;
 use tap::{Pipe, TryConv};
-use tmpl_resolver::{TemplateResolver, resolver::AHashRawMap};
+use glossa_dsl::{Resolver, resolver::AHashRawMap};
 
 const EN_TOML: &str = r#"
   num-to-en = """
@@ -273,7 +275,7 @@ fn main() -> AnyResult<()> {
       _ => EN_TOML,
     }
     .pipe(toml::from_str::<AHashRawMap>)?
-    .try_conv::<TemplateResolver>()?
+    .try_conv::<Resolver>()?
     .pipe(|r| {
       move |num_str| {
         r.get_with_context("show-unread-messages-count", &[("num", num_str)])

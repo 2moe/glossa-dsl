@@ -3,13 +3,13 @@ use alloc::collections::BTreeMap;
 use tap::Pipe;
 
 use crate::{
-  TemplateResolver,
+  Resolver,
   error::{ResolverError, ResolverResult},
   parsers::parse_value_or_map_err,
-  resolver::TemplateAST,
+  resolver::AST,
 };
 
-impl TryFrom<&[(&str, &str)]> for TemplateResolver {
+impl TryFrom<&[(&str, &str)]> for Resolver {
   type Error = ResolverError;
 
   fn try_from(value: &[(&str, &str)]) -> Result<Self, Self::Error> {
@@ -17,7 +17,7 @@ impl TryFrom<&[(&str, &str)]> for TemplateResolver {
   }
 }
 
-impl<const N: usize> TryFrom<[(&str, &str); N]> for TemplateResolver {
+impl<const N: usize> TryFrom<[(&str, &str); N]> for Resolver {
   type Error = ResolverError;
 
   fn try_from(value: [(&str, &str); N]) -> Result<Self, Self::Error> {
@@ -25,7 +25,7 @@ impl<const N: usize> TryFrom<[(&str, &str); N]> for TemplateResolver {
   }
 }
 
-impl<K, V> TryFrom<BTreeMap<K, V>> for TemplateResolver
+impl<K, V> TryFrom<BTreeMap<K, V>> for Resolver
 where
   K: AsRef<str>,
   V: AsRef<str>,
@@ -37,30 +37,30 @@ where
   }
 }
 
-impl TemplateResolver {
+impl Resolver {
   /// Construct from slice (no_std compatible)
   ///
   /// ```
   /// use tap::Pipe;
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
   /// let res = [
   ///   ("🐱", "喵 ฅ(°ω°ฅ)"),
   ///   ("hello", "Hello {🐱}"),
   /// ]
   ///  .as_ref()
-  ///  .pipe(TemplateResolver::try_from_slice)?;
+  ///  .pipe(Resolver::try_from_slice)?;
   ///
   /// let text = res.get_with_context("hello", &[])?;
   /// assert_eq!(text, "Hello 喵 ฅ(°ω°ฅ)");
   ///
-  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
+  /// # Ok::<(), glossa_dsl::error::ResolverError>(())
   /// ```
   pub fn try_from_slice(raw: &[(&str, &str)]) -> ResolverResult<Self> {
     Self::try_from_str_entries(raw.iter().copied())
   }
 
-  /// Attempts to build a TemplateResolver from raw unprocessed key-value
+  /// Attempts to build a Resolver from raw unprocessed key-value
   /// entries.
   ///
   /// ## Process Flow
@@ -68,7 +68,7 @@ impl TemplateResolver {
   /// 1. Accepts an iterator of raw (key, value) pairs
   /// 2. Parses each value into template AST (Abstract Syntax Tree)
   /// 3. Converts keys to normalized format
-  /// 4. Collects results into a TemplateAST
+  /// 4. Collects results into a Glossa-DSL AST
   /// 5. Constructs the final resolver
   ///
   /// ## Parameters
@@ -85,7 +85,7 @@ impl TemplateResolver {
   /// ```
   /// # #[cfg(all(feature = "serde", feature = "toml"))] {
   /// use tap::Pipe;
-  /// use tmpl_resolver::{TemplateResolver, resolver::MiniStr, resolver::BTreeRawMap};
+  /// use glossa_dsl::{Resolver, resolver::MiniStr, resolver::BTreeRawMap};
   ///
   ///
   /// let res = r##"
@@ -94,12 +94,12 @@ impl TemplateResolver {
   /// "##
   ///   .pipe(toml::from_str::<BTreeRawMap>)?
   ///   .into_iter()
-  ///   .pipe(TemplateResolver::try_from_str_entries)?;
+  ///   .pipe(Resolver::try_from_str_entries)?;
   ///
   /// assert_eq!(res.try_get("🐱")?, "喵 ฅ(°ω°ฅ)");
   ///
   /// # }
-  /// # Ok::<(), tmpl_resolver::Error>(())
+  /// # Ok::<(), glossa_dsl::Error>(())
   /// ```
   ///
   /// See also:
@@ -116,7 +116,7 @@ impl TemplateResolver {
         parse_value_or_map_err(key.as_ref(), value.as_ref()) //
           .map(|tmpl| (convert_map_key(key.as_ref()), tmpl))
       })
-      .collect::<Result<TemplateAST, _>>()?
+      .collect::<Result<AST, _>>()?
       .pipe(Self)
       .pipe(Ok)
   }
@@ -149,7 +149,7 @@ mod tests {
           *[other] {$period}",
       ),
     ]
-    .pipe_as_ref(TemplateResolver::try_from_slice)?;
+    .pipe_as_ref(Resolver::try_from_slice)?;
 
     // extern crate std;
     // std::dbg!(res);

@@ -1,16 +1,16 @@
 use tap::{Pipe, Tap};
 use tinyvec::TinyVec;
 
-// use super::{ResolverResult, TemplateResolver};
+// use super::{ResolverResult, Resolver};
 use crate::{
   MiniStr,
   error::{ResolverError, ResolverResult},
   parsers::context::Context,
-  resolver::{BTreeRawMap, TemplateResolver},
+  resolver::{BTreeRawMap, Resolver},
   template::Template,
 };
 
-impl TemplateResolver {
+impl Resolver {
   /// Core resolution method
   ///
   /// > If the context is empty, you can directly use [Self::try_get].
@@ -24,9 +24,9 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::{TemplateResolver, error::ResolverError};
+  /// use glossa_dsl::{Resolver, error::ResolverError};
   ///
-  /// let res: TemplateResolver = [
+  /// let res: Resolver = [
   ///   ("h", "Hello"),
   ///   ("greeting", "{h} {$🐱}"),
   /// ]
@@ -82,9 +82,9 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::{TemplateResolver, error::ResolverError};
+  /// use glossa_dsl::{Resolver, error::ResolverError};
   ///
-  /// let res: TemplateResolver = [
+  /// let res: Resolver = [
   ///   ("🐱", "ฅ(°ω°ฅ)"),
   ///   ("hi", "Hello"),
   ///   ("greeting", "{ hi } { 🐱 }"),
@@ -112,9 +112,9 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
-  /// let res: TemplateResolver = [
+  /// let res: Resolver = [
   ///   ("g", "Good"),
   ///   ("greeting", "{g} { time-period }! { $name }"),
   ///   (
@@ -133,7 +133,7 @@ impl TemplateResolver {
   /// let text = res.get_with_ctx_map("greeting", &ctx_map)?;
   /// assert_eq!(text, "Good night! Tom");
   ///
-  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
+  /// # Ok::<(), glossa_dsl::error::ResolverError>(())
   /// ```
   pub fn get_with_ctx_map(
     &self,
@@ -157,9 +157,9 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
-  /// let res: TemplateResolver = [
+  /// let res: Resolver = [
   ///   ("greeting", "{$hi} { $name }"),
   /// ]
   /// .try_into()?;
@@ -172,7 +172,7 @@ impl TemplateResolver {
   /// let text = res.get_with_ctx_map("greeting", &ctx_map)?;
   /// assert_eq!(text, "Hello! Tom");
   ///
-  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
+  /// # Ok::<(), glossa_dsl::error::ResolverError>(())
   /// ```
   pub fn get_with_ctx_map_buf(
     &self,
@@ -204,7 +204,7 @@ mod tests {
   #[ignore]
   #[cfg(feature = "std")]
   fn test_get_with_ctx_map() -> ResolverResult<()> {
-    let res: TemplateResolver = [
+    let res: Resolver = [
       ("g", "Good"),
       ("greeting", "{g} { time-period }! { $name }"),
       (
@@ -227,7 +227,7 @@ mod tests {
 
   #[test]
   fn test_get_with_btree_map() -> ResolverResult<()> {
-    let res: TemplateResolver = [
+    let res: Resolver = [
       ("greeting", "Good { time-period }! { $name }"),
       (
         "time-period",

@@ -1,20 +1,20 @@
 use crate::{
-  TemplateResolver,
-  resolver::{OrderedAST, TemplateAST},
+  Resolver,
+  resolver::{AST, OrderedAST},
 };
 
-impl TemplateResolver {
+impl Resolver {
   /// Converts the resolver into a BTreeMap.
   ///
   /// An ordered BTreeMap is useful when you need to serialize the
-  /// TemplateResolver to a configuration file or a binary file.
+  /// Resolver to a configuration file or a binary file.
   ///
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
-  /// let resolver = TemplateResolver::default();
+  /// let resolver = Resolver::default();
   /// let _map = resolver.into_btree_map();
   /// ```
   pub fn into_btree_map(self) -> OrderedAST {
@@ -27,12 +27,12 @@ impl TemplateResolver {
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
-  /// let resolver = TemplateResolver::default();
+  /// let resolver = Resolver::default();
   /// let _inner_data = resolver.into_inner();
   /// ```
-  pub fn into_inner(self) -> TemplateAST {
+  pub fn into_inner(self) -> AST {
     self.0
   }
 }
@@ -47,8 +47,8 @@ impl TemplateResolver {
 ///   collection. This guarantees deterministic ordering.
 /// - ​**Without `std` feature**: Directly returns the pre-ordered AST structure
 ///   without conversion, optimized for no_std environments.
-impl From<TemplateResolver> for OrderedAST {
-  fn from(value: TemplateResolver) -> Self {
+impl From<Resolver> for OrderedAST {
+  fn from(value: Resolver) -> Self {
     #[cfg(feature = "std")]
     {
       value

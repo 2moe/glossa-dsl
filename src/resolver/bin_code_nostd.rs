@@ -1,20 +1,19 @@
 pub(crate) use bincode::config::standard as bincode_std_cfg;
 use tap::Pipe;
 
-use crate::{TemplateResolver, error::ResolverResult};
+use crate::{Resolver, error::ResolverResult};
 
-impl TemplateResolver {
-  /// Decodes binary data into TemplateResolver using bincode's optimized
+impl Resolver {
+  /// Decodes binary data into Resolver using bincode's optimized
   /// deserialization.
   ///
   /// ## Input
   ///
-  /// - `slice` - Binary input slice containing serialized TemplateResolver data
+  /// - `slice` - Binary input slice containing serialized Resolver data
   ///
   /// ## Output
   ///
-  /// - A tuple of (deserialized TemplateResolver, amount of bytes read) on
-  ///   success
+  /// - A tuple of (deserialized Resolver, amount of bytes read) on success
   /// - Error details if deserialization fails
   ///
   /// See also: [bincode::serde::decode_from_slice]
@@ -22,20 +21,20 @@ impl TemplateResolver {
     bincode::serde::decode_from_slice(slice, bincode_std_cfg())?.pipe(Ok)
   }
 
-  /// Encodes the Self(TemplateResolver) into a binary format stored in a
+  /// Encodes the Self(Resolver) into a binary format stored in a
   /// [`Vec<u8>`].
   ///
   /// ## Example
   ///
   /// ```
-  /// use tmpl_resolver::TemplateResolver;
+  /// use glossa_dsl::Resolver;
   ///
-  /// let res: TemplateResolver =
+  /// let res: Resolver =
   ///   [("🐱", "喵 ฅ(°ω°ฅ)"), ("hello", "{🐱}")].try_into()?;
   ///
   /// let _data = res.encode_bin_to_vec()?;
   ///
-  /// # Ok::<(), tmpl_resolver::error::ResolverError>(())
+  /// # Ok::<(), glossa_dsl::error::ResolverError>(())
   /// ```
   ///
   /// See also: [bincode::serde::encode_to_vec]
@@ -56,10 +55,9 @@ mod tests {
   fn bench_encode_bin() -> ResolverResult<()> {
     use testutils::simple_benchmark;
 
-    // use tmpl_resolver::TemplateResolver;
-    use crate::TemplateResolver;
-    let res: TemplateResolver =
-      [("🐱", "喵 ฅ(°ω°ฅ)"), ("hello", "{🐱}")].try_into()?;
+    // use glossa_dsl::Resolver;
+    use crate::Resolver;
+    let res: Resolver = [("🐱", "喵 ฅ(°ω°ฅ)"), ("hello", "{🐱}")].try_into()?;
 
     simple_benchmark(|| res.encode_bin_to_vec());
 

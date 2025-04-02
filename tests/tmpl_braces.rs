@@ -1,8 +1,8 @@
-use tmpl_resolver::{TemplateResolver, error::ResolverResult};
+use glossa_dsl::{Resolver, error::ResolverResult};
 
 #[test]
 fn test_tmpl_escaped() -> ResolverResult<()> {
-  let resolver: TemplateResolver = [
+  let resolver: Resolver = [
     ("h", "Hello { $name }"),
     ("how_are_you", "How Are You"),
     ("greeting", "{h}!{{ how_are_you }}? {{    {$name} }}"),

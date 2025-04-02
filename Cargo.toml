@@ -1,16 +1,16 @@
 [package]
-name = "tmpl-resolver"
-version = "0.0.14"
+name = "glossa-dsl"
+version = "0.0.15"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
 authors = ["Moe <m@tmoe.me>"]
 readme = "docs/Readme.md"
 exclude = ["/rust-toolchain.toml"]
-repository = "https://github.com/2moe/tmpl-resolver"
+repository = "https://github.com/2moe/glossa-dsl"
 keywords = ["serde", "config"]
 categories = ["encoding", "parser-implementations", "parsing", "config"]
-description = "A lightweight template resolution engine with conditional logic support"
+description = "A domain-specific language designed exclusively for localization (L10n)"
 
 [features]
 default = []

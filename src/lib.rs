@@ -1,9 +1,9 @@
 #![cfg_attr(__unstable_doc, feature(doc_auto_cfg, doc_notable_trait))]
 #![cfg_attr(not(feature = "std"), no_std)]
 /*!
-# tmpl_resolver
+# glossa_dsl
 
-A lightweight template resolution engine with conditional logic support.
+A **domain-specific language** designed exclusively for localization (L10n).
 
 ## Key Concepts
 
@@ -31,10 +31,10 @@ A lightweight template resolution engine with conditional logic support.
 ### Basic
 
 ```rust
-use tmpl_resolver::{TemplateResolver, error::ResolverResult};
+use glossa_dsl::{Resolver, error::ResolverResult};
 
 fn main() -> ResolverResult<()> {
-  let resolver: TemplateResolver = [
+  let resolver: Resolver = [
       ("h", "Hello"),
       ("greeting", "{h} { $name }! Today is {$day}")
     ]
@@ -49,7 +49,7 @@ fn main() -> ResolverResult<()> {
 ### Conditional Logic
 
 ```rust
-use tmpl_resolver::{TemplateResolver, error::ResolverResult};
+use glossa_dsl::{Resolver, error::ResolverResult};
 
 fn main() -> ResolverResult<()> {
   let selector_msg = [(
@@ -61,7 +61,7 @@ fn main() -> ResolverResult<()> {
     "#
   )];
 
-  let resolver: TemplateResolver = selector_msg.try_into()?;
+  let resolver: Resolver = selector_msg.try_into()?;
 
   let success_msg = resolver.get_with_context("message", &[("status", "success")])?;
 
@@ -82,10 +82,10 @@ fn main() -> ResolverResult<()> {
 - `"{{{ {{a} }}}"` => `"{{a}"`
 
 ```rust
-use tmpl_resolver::{error::ResolverResult, TemplateResolver};
+use glossa_dsl::{error::ResolverResult, Resolver};
 
 fn main() -> ResolverResult<()> {
-  let resolver: TemplateResolver = [
+  let resolver: Resolver = [
     ("h", "Hello { $name }"),
     ("how_are_you", "How Are You"),
     ("greeting", "{h}!{{ how_are_you }}? {{     {$name} }}"),
@@ -112,7 +112,7 @@ pub(crate) mod part;
 
 pub mod resolver;
 pub(crate) use resolver::MiniStr;
-pub use resolver::TemplateResolver;
+pub use resolver::Resolver;
 
 #[cfg(feature = "std")]
 pub type ContextMap<'a> = ahash::HashMap<&'a str, &'a str>;
@@ -132,7 +132,7 @@ mod no_std_tests {
   use super::*;
   use crate::error::ResolverResult;
 
-  fn init_ast() -> ResolverResult<resolver::TemplateResolver> {
+  fn init_ast() -> ResolverResult<resolver::Resolver> {
     [("g", "Good"), ("greeting", "{g} {$period}! { $name }")]
       .as_ref()
       .try_into()
@@ -211,7 +211,7 @@ greeting = "{ time-period }! { gender }{ $name }"
   #[test]
   fn get_text() -> ResolverResult<()> {
     let raw = raw_toml_to_hashmap().expect("Failed to deser toml");
-    let resolver = resolver::TemplateResolver::try_from_raw(raw)?;
+    let resolver = resolver::Resolver::try_from_raw(raw)?;
     let text = resolver.get_with_context(
       "greeting",
       &[
@@ -228,7 +228,7 @@ greeting = "{ time-period }! { gender }{ $name }"
   #[ignore]
   fn encode_ast_to_json() -> anyhow::Result<String> {
     let raw = raw_toml_to_hashmap()?;
-    let resolver = resolver::TemplateResolver::try_from_raw(raw)?;
+    let resolver = resolver::Resolver::try_from_raw(raw)?;
     let json_str = serde_json::to_string_pretty(&resolver)?;
     // println!("{toml_str}");
     Ok(json_str)
@@ -239,14 +239,12 @@ greeting = "{ time-period }! { gender }{ $name }"
   #[test]
   fn test_serde_bincode_from_json_str() -> anyhow::Result<()> {
     let json_str = encode_ast_to_json()?;
-    let data = serde_json::from_str::<resolver::TemplateResolver>(&json_str)?;
+    let data = serde_json::from_str::<resolver::Resolver>(&json_str)?;
     let cfg = bincode::config::standard().with_no_limit();
     let buf = bincode::serde::encode_to_vec(data, cfg)?;
     fs::write("tmp.bincode", &buf)?;
-    let (data, n) = bincode::serde::borrow_decode_from_slice::<
-      resolver::TemplateResolver,
-      _,
-    >(&buf, cfg)?;
+    let (data, n) =
+      bincode::serde::borrow_decode_from_slice::<resolver::Resolver, _>(&buf, cfg)?;
     dbg!(data, n);
     Ok(())
   }
@@ -260,7 +258,7 @@ greeting = "{ time-period }! { gender }{ $name }"
     let buf = fs::read("tmp.bincode")?;
     let now = std::time::Instant::now();
     let (data, _u) =
-      bincode::serde::decode_from_slice::<resolver::TemplateResolver, _>(&buf, cfg)?;
+      bincode::serde::decode_from_slice::<resolver::Resolver, _>(&buf, cfg)?;
     let elapsed = now.elapsed();
     dbg!(&data);
     eprintln!("elapsed: {elapsed:?}");
@@ -274,8 +272,7 @@ greeting = "{ time-period }! { gender }{ $name }"
   #[ignore]
   fn bench_resolve() -> anyhow::Result<()> {
     let raw = raw_toml_to_hashmap()?;
-    let resolver =
-      resolver::TemplateResolver::try_from_raw(raw).expect("Invalid template");
+    let resolver = resolver::Resolver::try_from_raw(raw).expect("Invalid template");
     dbg!(&resolver);
 
     simple_benchmark(|| {

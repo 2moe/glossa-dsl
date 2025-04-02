@@ -1,12 +1,10 @@
 #![cfg(feature = "serde")]
 
 // use anyhow::Result as AnyResult;
+use glossa_dsl::{Resolver, error::ResolverResult, resolver::BTreeRawMap};
 use tap::{Pipe, TryConv};
-use tmpl_resolver::{
-  TemplateResolver, error::ResolverResult, resolver::BTreeRawMap,
-};
 
-/// doc test: [TemplateResolver::try_from_str_entries]
+/// doc test: [Resolver::try_from_str_entries]
 #[test]
 #[ignore]
 fn test_emoji_var() -> ResolverResult<()> {
@@ -32,8 +30,8 @@ fn test_emoji_var() -> ResolverResult<()> {
     .pipe(toml::from_str::<BTreeRawMap>)?
     // .expect("Failed to deserialize toml")
     // .into_iter()
-    // .pipe(TemplateResolver::try_from_str_entries)?;
-    .try_conv::<TemplateResolver>()?;
+    // .pipe(Resolver::try_from_str_entries)?;
+    .try_conv::<Resolver>()?;
 
   let get_text = |ctx| res.get_with_context("greeting", ctx);
 

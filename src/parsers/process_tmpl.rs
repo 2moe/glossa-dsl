@@ -7,11 +7,11 @@ use crate::{
   error::{ResolverError, ResolverResult},
   parsers::context::Context,
   part::{TemplatePart, VariableRef},
-  resolver::TemplateResolver,
+  resolver::Resolver,
   selector, template,
 };
 
-impl TemplateResolver {
+impl Resolver {
   pub(crate) fn process_template(
     &self,
     template: &template::Template,

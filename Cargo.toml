@@ -1,6 +1,6 @@
 [package]
 name = "glossa-dsl"
-version = "0.0.15"
+version = "0.0.16"
 edition = "2024"
 rust-version = "1.85"
 license = "Apache-2.0"
@@ -37,10 +37,7 @@ serde = { version = "1.0", default-features = false, optional = true, features =
     "alloc",
     "derive",
 ] }
-tinyvec = { version = "1.9", default-features = false, features = [
-    "alloc",
-    "latest_stable_rust",
-] }
+tinyvec = { version = "1.9", default-features = false, features = ["alloc", "rustc_1_61"] }
 ahash = { version = "0.8", optional = true }
 nom = { version = "8.0", default-features = false, features = ["alloc"] }
 compact_str = { version = "0.9", default-features = false }
